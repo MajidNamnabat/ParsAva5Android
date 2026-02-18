@@ -66,8 +66,15 @@ public class FaTts implements Serializable {
     private transient OrtSession mOnnxSession;
     private String mOnnxModelPath;
     private String mOnnxPrimaryInputName;
+    private String mOnnxScalesInputName;
+    private String mOnnxLengthScaleInputName;
     private static final int PCM_16_BIT_BYTES_PER_SAMPLE = 2;
     private static final int SYNTH_CHUNK_SIZE_BYTES = 8192;
+    private static final float ONNX_NOISE_SCALE = 0.667f;
+    private static final float ONNX_NOISE_W = 0.8f;
+    private static final float ONNX_LENGTH_SCALE_MIN = 0.5f;
+    private static final float ONNX_LENGTH_SCALE_MAX = 2.0f;
+    private volatile float mOnnxLengthScale = 1.0f;
     /////Load Libraries Section
     static {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> INSTALL_CHECK_EXECUTOR.shutdownNow()));
@@ -175,6 +182,8 @@ public class FaTts implements Serializable {
             mOnnxSession = mOnnxEnvironment.createSession(modelPath, options);
             mOnnxModelPath = modelPath;
             mOnnxPrimaryInputName = resolvePrimaryOnnxInputName(mOnnxSession);
+            mOnnxScalesInputName = resolveOptionalOnnxInputName(mOnnxSession, "scales");
+            mOnnxLengthScaleInputName = resolveOptionalOnnxInputName(mOnnxSession, "length_scale");
             if (mOnnxPrimaryInputName == null || mOnnxPrimaryInputName.isEmpty()) {
                 LogUtils.e(TAG, "loadPersianOnnxModel failed: model input not found");
                 closePersianOnnxModel();
@@ -215,6 +224,8 @@ public class FaTts implements Serializable {
         }
         mOnnxModelPath = null;
         mOnnxPrimaryInputName = null;
+        mOnnxScalesInputName = null;
+        mOnnxLengthScaleInputName = null;
     }
 
     private String resolvePrimaryOnnxInputName(OrtSession session) {
@@ -222,6 +233,25 @@ public class FaTts implements Serializable {
             return null;
         }
         return session.getInputNames().iterator().next();
+    }
+
+    private String resolveOptionalOnnxInputName(OrtSession session, String preferredName) {
+        if (session == null || session.getInputNames() == null || session.getInputNames().isEmpty()) {
+            return null;
+        }
+
+        for (String inputName : session.getInputNames()) {
+            if (inputName != null && inputName.equalsIgnoreCase(preferredName)) {
+                return inputName;
+            }
+        }
+
+        for (String inputName : session.getInputNames()) {
+            if (inputName != null && inputName.toLowerCase().contains(preferredName.toLowerCase())) {
+                return inputName;
+            }
+        }
+        return null;
     }
 
     public int synth(String persianText) {
@@ -273,9 +303,39 @@ public class FaTts implements Serializable {
             if (inputName == null || inputName.isEmpty()) {
                 return false;
             }
-            final java.util.Map<String, OnnxTensor> inputs = new java.util.HashMap<>(1);
+            final java.util.Map<String, OnnxTensor> inputs = new java.util.HashMap<>(3);
             try (OnnxTensor inputTensor = OnnxTensor.createTensor(mOnnxEnvironment, java.nio.LongBuffer.wrap(tokenIds), new long[]{1, tokenIds.length})) {
                 inputs.put(inputName, inputTensor);
+                if (mOnnxScalesInputName != null && !mOnnxScalesInputName.isEmpty()) {
+                    float[] scales = new float[]{ONNX_NOISE_SCALE, mOnnxLengthScale, ONNX_NOISE_W};
+                    try (OnnxTensor scalesTensor = OnnxTensor.createTensor(mOnnxEnvironment, java.nio.FloatBuffer.wrap(scales), new long[]{1, 3})) {
+                        inputs.put(mOnnxScalesInputName, scalesTensor);
+                        try (OrtSession.Result result = mOnnxSession.run(inputs)) {
+                            final byte[] pcm16Wave = extractPcmWave(result);
+                            if (pcm16Wave == null || pcm16Wave.length == 0) {
+                                return false;
+                            }
+                            emitWaveToQueue(pcm16Wave);
+                            return true;
+                        }
+                    }
+                }
+
+                if (mOnnxLengthScaleInputName != null && !mOnnxLengthScaleInputName.isEmpty()) {
+                    float[] lengthScale = new float[]{mOnnxLengthScale};
+                    try (OnnxTensor lengthScaleTensor = OnnxTensor.createTensor(mOnnxEnvironment, java.nio.FloatBuffer.wrap(lengthScale), new long[]{1})) {
+                        inputs.put(mOnnxLengthScaleInputName, lengthScaleTensor);
+                        try (OrtSession.Result result = mOnnxSession.run(inputs)) {
+                            final byte[] pcm16Wave = extractPcmWave(result);
+                            if (pcm16Wave == null || pcm16Wave.length == 0) {
+                                return false;
+                            }
+                            emitWaveToQueue(pcm16Wave);
+                            return true;
+                        }
+                    }
+                }
+
                 try (OrtSession.Result result = mOnnxSession.run(inputs)) {
                 final byte[] pcm16Wave = extractPcmWave(result);
                 if (pcm16Wave == null || pcm16Wave.length == 0) {
@@ -557,6 +617,31 @@ public class FaTts implements Serializable {
     private static final int MBROLA_MAX_RATE = 100;
 
     public void applySpeechRate(int blockRate, int settingRate) {
+        final int normalizedBlockRate = clampRate(blockRate);
+        final int normalizedSettingRate = clampRate(settingRate);
+        final float averageRate = (normalizedBlockRate + normalizedSettingRate) / 2.0f;
+
+        mSpeechRateValue = Math.round(averageRate);
+        mOnnxLengthScale = rateToLengthScale(averageRate);
+
+        LogUtils.i(TAG, "applySpeechRate blockRate=" + normalizedBlockRate
+                + ", settingRate=" + normalizedSettingRate
+                + ", averageRate=" + averageRate
+                + ", length_scale=" + mOnnxLengthScale);
+    }
+
+    private int clampRate(int rate) {
+        return Math.max(0, Math.min(100, rate));
+    }
+
+    private float rateToLengthScale(float averageRate) {
+        float lengthScale;
+        if (averageRate >= 50.0f) {
+            lengthScale = 1.0f - ((averageRate - 50.0f) / 100.0f);
+        } else {
+            lengthScale = 1.0f + ((50.0f - averageRate) / 50.0f);
+        }
+        return Math.max(ONNX_LENGTH_SCALE_MIN, Math.min(ONNX_LENGTH_SCALE_MAX, lengthScale));
     }
 
 
