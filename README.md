@@ -3,8 +3,9 @@
 ParsAva is a bilingual text-to-speech (TTS) engine tailored for Android accessibility users—especially blind users relying on TalkBack. It provides high-speed, low-latency playback for rapidly switching content, supports long running sessions without memory slowdowns, and can fluently read mixed Persian and English text using two dedicated voices.
 
 ### Synthesis technology
-- **MBROLA-powered Persian voice** – The Persian pipeline routes text through MBROLA to keep articulation natural while preserving the ultra-fast speech rates TalkBack users expect.
-- **TalkBack-first sliders** – Persian rate and pitch sliders stay enabled in the engine settings so blind users can tune MBROLA playback speed and intonation without leaving the TalkBack flow.
+- **MBROLA role in Persian synthesis** – MBROLA remains the trusted fallback path for Persian output and preserves natural articulation at very rapid speech speeds required by Google TalkBack users.
+- **ONNX Persian path (`elnaz.onnx`)** – `FaTts` now preloads the ONNX model at `Load(...)`, synthesizes Persian text through `synth(...)`, converts model output to PCM16, and streams chunks to the existing queue callback contract.
+- **TalkBack-first controls** – Persian rate and pitch sliders stay available so blind users can keep speech fast enough to stay aligned with focus changes.
 
 ## Project layout
 - **app/src/main/java/com/khanenoor/parsavatts** – Core application package containing activities, application-level state, providers, and utilities.
@@ -73,12 +74,11 @@ The engine is designed for blind users who navigate content rapidly with TalkBac
 - **Offline-ready assets** – Download and validation flows for voice data reduce repeated network fetches and help keep memory usage predictable.
 
 ### DualTts speedup checklist
-- **Warm up early** – Preload MBROLA voice data and initialize both `FaTts` and `EnTts` handles during `ExtendedApplication` startup so TalkBack’s first utterance has no cold-start delay.
-- **Reuse buffers** – Keep a small pool of byte buffers inside `SpeechSynthesis` and `DualTtsService` to avoid per-utterance allocations and reduce GC pauses that interrupt rapid navigation.
-- **Prioritize audio threads** – Raise thread priority for synthesis workers and audio writers to keep pace with TalkBack’s event rate, especially when users flick quickly through items.
-- **Shorten parsing paths** – Cache punctuation, digit, and emoji rules so switching options in `Preferences` does not trigger repeated file I/O before each utterance.
-- **Stream promptly** – Flush audio chunks to the Android audio track as soon as MBROLA or the English pipeline returns them instead of waiting for full utterances, keeping perceived latency minimal.
-- **Measure and cap latency** – Use Android systrace or `traceview` around `DualTtsService` queue handling and native callbacks to maintain sub-100ms response for focus changes.
+- **Preload both Persian paths** – Warm up MBROLA fallback assets and `elnaz.onnx` (`FaTts.Load`) before the first TalkBack utterance to remove cold-start lag.
+- **Reuse buffers aggressively** – Recycle PCM chunk buffers in `SpeechSynthesis`/`DualTtsService` to reduce allocations and GC pauses that can desync spoken feedback from the screen.
+- **Prioritize synthesis threads** – Keep producer/drain threads at TalkBack-friendly priority (`URGENT_AUDIO` when appropriate) so rapid focus movement is spoken in sync.
+- **Keep queue drain low-latency** – Emit PCM chunks immediately from ONNX/MBROLA output and avoid waiting for full utterances; this keeps TalkBack feedback responsive during fast flick navigation.
+- **Cache hot metadata** – Cache ONNX input names and frequently used parsing options (punctuation/digits/emoji) to avoid repeated lookups in the hot path.
 
 ### Manual QA checklist: English rate and pitch propagation
 - **Goal** – Keep the English path responsive without regressing the MBROLA-powered Persian pipeline that TalkBack users rely on for rapid speech. The checks below focus on `PreferencesChangeReceiver` applying English slider updates to `mEnTts.mConfiureParams`.

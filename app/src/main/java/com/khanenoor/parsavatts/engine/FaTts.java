@@ -8,6 +8,13 @@ import com.khanenoor.parsavatts.Preferences;
 import com.khanenoor.parsavatts.impractical.Language;
 import com.khanenoor.parsavatts.impractical.SpeechSynthesisConfigure;
 import com.khanenoor.parsavatts.util.LogUtils;
+import com.microsoft.onnxruntime.OrtEnvironment;
+import com.microsoft.onnxruntime.OrtException;
+import com.microsoft.onnxruntime.OrtSession;
+import com.microsoft.onnxruntime.OrtTensor;
+import com.microsoft.onnxruntime.OnnxTensor;
+import com.microsoft.onnxruntime.OnnxValue;
+
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -54,6 +61,13 @@ public class FaTts implements Serializable {
     private int mSpeechRateValue = 0;
     private static final ExecutorService INSTALL_CHECK_EXECUTOR = Executors.newSingleThreadExecutor();
     private static final long INSTALL_CHECK_TIMEOUT_SECONDS = 5L;
+    private static final String PERSIAN_ONNX_MODEL_ASSET = "elnaz.onnx";
+    private transient OrtEnvironment mOnnxEnvironment;
+    private transient OrtSession mOnnxSession;
+    private String mOnnxModelPath;
+    private String mOnnxPrimaryInputName;
+    private static final int PCM_16_BIT_BYTES_PER_SAMPLE = 2;
+    private static final int SYNTH_CHUNK_SIZE_BYTES = 8192;
     /////Load Libraries Section
     static {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> INSTALL_CHECK_EXECUTOR.shutdownNow()));
@@ -97,6 +111,7 @@ public class FaTts implements Serializable {
             //LogUtils.w(TAG,"FaTts.Install result1:" + result);
             result = copyAsset(am, "ic_action_dark.bmp", "/data/data/" + package_name_static + "/ic_action_dark.bmp");
             result = copyAsset(am, "UserDictionary.dict", "/data/data/" + package_name_static + "/UserDictionary.dict");
+            result = copyAsset(am, PERSIAN_ONNX_MODEL_ASSET, "/data/data/" + package_name_static + "/" + PERSIAN_ONNX_MODEL_ASSET);
 
         } catch (Exception ex){
             LogUtils.w(TAG,"FaTts.Insll " + ex.getMessage());
@@ -106,6 +121,10 @@ public class FaTts implements Serializable {
                         int nMode, int nScreenReader) {
         String path =  "/data/data/" + package_name + "/Settings.xml";
         try {
+                if (!loadPersianOnnxModel(cnx)) {
+                    LogUtils.e(TAG, "Error in Load: failed to initialize Persian ONNX model " + PERSIAN_ONNX_MODEL_ASSET);
+                    return false;
+                }
                 //LogUtils.w(TAG, " RegisterCallbackNLP Done " + nlpHand);
                 //Load Preferences and Settings
                 Preferences prefs = new Preferences(cnx);
@@ -125,9 +144,317 @@ public class FaTts implements Serializable {
     }
     public void Unload(){
         try {
+            closePersianOnnxModel();
         }  catch (Exception ex) {
             LogUtils.e(TAG, " Error in UnloadNLP " + ex.getMessage());
         }
+    }
+
+    private synchronized boolean loadPersianOnnxModel(Context context) {
+        if (context == null) {
+            LogUtils.e(TAG, "loadPersianOnnxModel failed: context is null");
+            return false;
+        }
+
+        if (mOnnxSession != null) {
+            return true;
+        }
+
+        try {
+            final String modelPath = resolvePersianOnnxModelPath(context);
+            if (modelPath == null || modelPath.isEmpty()) {
+                LogUtils.e(TAG, "loadPersianOnnxModel failed: empty model path");
+                return false;
+            }
+
+            if (mOnnxEnvironment == null) {
+                mOnnxEnvironment = OrtEnvironment.getEnvironment();
+            }
+            OrtSession.SessionOptions options = new OrtSession.SessionOptions();
+            options.setOptimizationLevel(OrtSession.SessionOptions.OptLevel.ALL_OPT);
+            mOnnxSession = mOnnxEnvironment.createSession(modelPath, options);
+            mOnnxModelPath = modelPath;
+            mOnnxPrimaryInputName = resolvePrimaryOnnxInputName(mOnnxSession);
+            if (mOnnxPrimaryInputName == null || mOnnxPrimaryInputName.isEmpty()) {
+                LogUtils.e(TAG, "loadPersianOnnxModel failed: model input not found");
+                closePersianOnnxModel();
+                return false;
+            }
+
+            LogUtils.i(TAG, "Persian ONNX model loaded: " + mOnnxModelPath + ", input=" + mOnnxPrimaryInputName);
+            return true;
+        } catch (IOException | OrtException e) {
+            LogUtils.e(TAG, "loadPersianOnnxModel failed: " + e.getMessage());
+            closePersianOnnxModel();
+        }
+
+        return false;
+    }
+
+    private String resolvePersianOnnxModelPath(Context context) throws IOException {
+        final String destinationPath = "/data/data/" + package_name + "/" + PERSIAN_ONNX_MODEL_ASSET;
+        File destinationFile = new File(destinationPath);
+        if (!destinationFile.exists() || destinationFile.length() == 0L) {
+            boolean copied = copyAsset(context.getAssets(), PERSIAN_ONNX_MODEL_ASSET, destinationPath);
+            if (!copied) {
+                throw new IOException("Unable to copy Persian ONNX model to " + destinationPath);
+            }
+            destinationFile = new File(destinationPath);
+        }
+        return destinationFile.getAbsolutePath();
+    }
+
+    private synchronized void closePersianOnnxModel() {
+        if (mOnnxSession != null) {
+            try {
+                mOnnxSession.close();
+            } catch (OrtException e) {
+                LogUtils.w(TAG, "closePersianOnnxModel session close failed", e);
+            }
+            mOnnxSession = null;
+        }
+        mOnnxModelPath = null;
+        mOnnxPrimaryInputName = null;
+    }
+
+    private String resolvePrimaryOnnxInputName(OrtSession session) {
+        if (session == null || session.getInputNames() == null || session.getInputNames().isEmpty()) {
+            return null;
+        }
+        return session.getInputNames().iterator().next();
+    }
+
+    public int synth(String persianText) {
+        if (mCallback == null) {
+            return 0;
+        }
+        if (persianText == null || persianText.trim().isEmpty()) {
+            mCallback.onSynthDataComplete();
+            return 1;
+        }
+
+        try {
+            if (synthWithOnnx(persianText)) {
+                return 1;
+            }
+            return synthWithLegacyNlp(persianText);
+        } catch (Exception e) {
+            LogUtils.w(TAG, "synth failed, fallback to legacy pipeline", e);
+            return synthWithLegacyNlp(persianText);
+        }
+    }
+
+    private int synthWithLegacyNlp(String persianText) {
+        try {
+            ParsTextNLP(getNlpHand(), persianText.getBytes("UTF-32"), true);
+            return 1;
+        } catch (Exception e) {
+            LogUtils.e(TAG, "synthWithLegacyNlp failed: " + e.getMessage());
+        }
+        return 0;
+    }
+
+    private synchronized boolean synthWithOnnx(String persianText) {
+        if (mOnnxSession == null) {
+            if (!loadPersianOnnxModel(mContext)) {
+                return false;
+            }
+        }
+        if (mOnnxSession == null) {
+            return false;
+        }
+
+        try {
+            final long[] tokenIds = textToTokenIds(persianText);
+            if (tokenIds.length == 0) {
+                return false;
+            }
+            final String inputName = mOnnxPrimaryInputName;
+            if (inputName == null || inputName.isEmpty()) {
+                return false;
+            }
+            final java.util.Map<String, OnnxTensor> inputs = new java.util.HashMap<>(1);
+            try (OnnxTensor inputTensor = OnnxTensor.createTensor(mOnnxEnvironment, java.nio.LongBuffer.wrap(tokenIds), new long[]{1, tokenIds.length})) {
+                inputs.put(inputName, inputTensor);
+                try (OrtSession.Result result = mOnnxSession.run(inputs)) {
+                final byte[] pcm16Wave = extractPcmWave(result);
+                if (pcm16Wave == null || pcm16Wave.length == 0) {
+                    return false;
+                }
+                emitWaveToQueue(pcm16Wave);
+                return true;
+                }
+            }
+        } catch (Exception ex) {
+            LogUtils.w(TAG, "synthWithOnnx failed", ex);
+            return false;
+        }
+    }
+
+    private long[] textToTokenIds(String text) {
+        final int[] codePoints = text.codePoints().toArray();
+        if (codePoints.length == 0) {
+            return new long[]{0L};
+        }
+        final long[] tokens = new long[codePoints.length];
+        for (int i = 0; i < codePoints.length; i++) {
+            tokens[i] = Math.max(0, codePoints[i]);
+        }
+        return tokens;
+    }
+
+    private byte[] extractPcmWave(OrtSession.Result result) throws OrtException {
+        if (result == null || result.size() == 0) {
+            return null;
+        }
+
+        for (OnnxValue value : result) {
+            if (!(value instanceof OrtTensor)) {
+                continue;
+            }
+
+            final Object tensorValue = ((OrtTensor) value).getValue();
+            final byte[] pcmWave = toPcm16Wave(tensorValue);
+            if (pcmWave != null && pcmWave.length > 0) {
+                return pcmWave;
+            }
+        }
+
+        return null;
+    }
+
+    private byte[] toPcm16Wave(Object tensorValue) {
+        if (tensorValue instanceof byte[]) {
+            return stripWaveHeaderIfPresent((byte[]) tensorValue);
+        }
+
+        final float[] floatWave = flattenFloatTensor(tensorValue);
+        if (floatWave != null && floatWave.length > 0) {
+            return floatToPcm16(floatWave);
+        }
+
+        final short[] shortWave = flattenShortTensor(tensorValue);
+        if (shortWave != null && shortWave.length > 0) {
+            return shortToPcm16(shortWave);
+        }
+
+        return null;
+    }
+
+    private float[] flattenFloatTensor(Object tensorValue) {
+        if (tensorValue instanceof float[]) {
+            return (float[]) tensorValue;
+        }
+        if (tensorValue instanceof float[][]) {
+            float[][] arr = (float[][]) tensorValue;
+            return arr.length == 0 ? null : arr[0];
+        }
+        if (tensorValue instanceof float[][][]) {
+            float[][][] arr = (float[][][]) tensorValue;
+            return (arr.length == 0 || arr[0].length == 0) ? null : arr[0][0];
+        }
+        return null;
+    }
+
+    private short[] flattenShortTensor(Object tensorValue) {
+        if (tensorValue instanceof short[]) {
+            return (short[]) tensorValue;
+        }
+        if (tensorValue instanceof short[][]) {
+            short[][] arr = (short[][]) tensorValue;
+            return arr.length == 0 ? null : arr[0];
+        }
+        if (tensorValue instanceof short[][][]) {
+            short[][][] arr = (short[][][]) tensorValue;
+            return (arr.length == 0 || arr[0].length == 0) ? null : arr[0][0];
+        }
+        return null;
+    }
+
+    private byte[] floatToPcm16(float[] waveform) {
+        byte[] pcmData = new byte[waveform.length * PCM_16_BIT_BYTES_PER_SAMPLE];
+        int idx = 0;
+        for (float sample : waveform) {
+            if (sample > 1f) sample = 1f;
+            if (sample < -1f) sample = -1f;
+            short pcm = (short) (sample * Short.MAX_VALUE);
+            pcmData[idx++] = (byte) (pcm & 0xff);
+            pcmData[idx++] = (byte) ((pcm >> 8) & 0xff);
+        }
+        return pcmData;
+    }
+
+    private byte[] shortToPcm16(short[] waveform) {
+        byte[] pcmData = new byte[waveform.length * PCM_16_BIT_BYTES_PER_SAMPLE];
+        int idx = 0;
+        for (short sample : waveform) {
+            pcmData[idx++] = (byte) (sample & 0xff);
+            pcmData[idx++] = (byte) ((sample >> 8) & 0xff);
+        }
+        return pcmData;
+    }
+
+    private byte[] stripWaveHeaderIfPresent(byte[] waveBytes) {
+        if (waveBytes == null || waveBytes.length < 12) {
+            return waveBytes;
+        }
+        if (waveBytes[0] == 'R' && waveBytes[1] == 'I' && waveBytes[2] == 'F' && waveBytes[3] == 'F'
+                && waveBytes[8] == 'W' && waveBytes[9] == 'A' && waveBytes[10] == 'V' && waveBytes[11] == 'E') {
+            for (int i = 12; i + 8 <= waveBytes.length; ) {
+                int chunkSize = readLittleEndianInt(waveBytes, i + 4);
+                if (chunkSize < 0) {
+                    break;
+                }
+                if (waveBytes[i] == 'd' && waveBytes[i + 1] == 'a' && waveBytes[i + 2] == 't' && waveBytes[i + 3] == 'a') {
+                    int dataStart = i + 8;
+                    int dataEnd = Math.min(waveBytes.length, dataStart + chunkSize);
+                    if (dataStart < dataEnd) {
+                        byte[] pcm = new byte[dataEnd - dataStart];
+                        System.arraycopy(waveBytes, dataStart, pcm, 0, pcm.length);
+                        return pcm;
+                    }
+                    break;
+                }
+                i += 8 + chunkSize + (chunkSize % 2);
+            }
+        }
+        return waveBytes;
+    }
+
+    private int readLittleEndianInt(byte[] bytes, int offset) {
+        if (bytes == null || offset < 0 || offset + 4 > bytes.length) {
+            return -1;
+        }
+        return (bytes[offset] & 0xff)
+                | ((bytes[offset + 1] & 0xff) << 8)
+                | ((bytes[offset + 2] & 0xff) << 16)
+                | ((bytes[offset + 3] & 0xff) << 24);
+    }
+
+    private void emitWaveToQueue(byte[] pcm16Wave) {
+        if (mCallback == null || pcm16Wave == null || pcm16Wave.length == 0) {
+            if (mCallback != null) {
+                mCallback.onSynthDataComplete();
+            }
+            return;
+        }
+
+        int offset = 0;
+        while (offset < pcm16Wave.length) {
+            if (Thread.currentThread().isInterrupted()) {
+                Thread.currentThread().interrupt();
+                break;
+            }
+            final int bytesToWrite = Math.min(SYNTH_CHUNK_SIZE_BYTES, pcm16Wave.length - offset);
+            byte[] chunk = new byte[bytesToWrite];
+            System.arraycopy(pcm16Wave, offset, chunk, 0, bytesToWrite);
+            int callbackResult = mCallback.onSynthDataReady(chunk, chunk.length);
+            if (callbackResult != 0) {
+                break;
+            }
+            offset += bytesToWrite;
+        }
+        mCallback.onSynthDataComplete();
     }
 
     public int getVoice() {

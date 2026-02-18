@@ -283,9 +283,12 @@ public class SpeechSynthesis  {
             return TextToSpeech.ERROR;
         }
         if(text.length()>0){
-            mFaTts.ParsTextNLP(mFaTts.getNlpHand(),text.getBytes("UTF-32"),isText);
+            int synthResult = mFaTts.synth(text);
+            if (synthResult == 0) {
+                return TextToSpeech.ERROR;
+            }
             if (Thread.interrupted()) {
-                LogUtils.i(TAG, "SpeechSynthesis.speak interrupted after ParsTextNLP");
+                LogUtils.i(TAG, "SpeechSynthesis.speak interrupted after synth");
                 Thread.currentThread().interrupt();
                 return TextToSpeech.ERROR;
             }
