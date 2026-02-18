@@ -1,5 +1,11 @@
 # Contribution notes
-- Keep documentation concise and focus on accessibility and performance details that impact blind TalkBack users.
-- When editing docs, call out MBROLA’s role in Persian synthesis and emphasize the importance of rapid speech for Google TalkBack use.
-- Prefer Markdown lists for describing features and behaviors.
-- When proposing DualTts optimizations, favor concrete, low-latency tactics (preloading, buffer reuse, thread priority tuning) and describe how they help TalkBack users stay in sync with the screen.
+- Keep documentation concise and focused on accessibility/performance details that affect blind TalkBack users.
+- In docs, explicitly describe MBROLA as the Persian fallback path and stress rapid speech requirements for Google TalkBack.
+- Mention the ONNX Persian path (`elnaz.onnx`) clearly: preload in `FaTts.Load(...)`, synthesize in `FaTts.synth(...)`, convert to PCM16, then stream through the existing callback queue.
+- Prefer Markdown bullet lists for features, behaviors, and checklists.
+- For DualTts optimizations, prioritize concrete low-latency tactics:
+  - preloading model/voice assets,
+  - buffer reuse,
+  - synthesis thread priority tuning,
+  - hot-path metadata caching,
+  - immediate chunk streaming to keep TalkBack speech synchronized with focus movement.
