@@ -16,11 +16,18 @@ import com.khanenoor.parsavatts.Lock;
 import com.khanenoor.parsavatts.Preferences;
 import com.khanenoor.parsavatts.impractical.AudioBufferObservable;
 import com.khanenoor.parsavatts.receivers.PreferencesChangeReceiver;
+import com.khanenoor.parsavatts.ttsService.tokenizer.EspeakLikeTokenDetector;
+import com.khanenoor.parsavatts.impractical.enmSpeakProgressStates;
+import com.khanenoor.parsavatts.ttsService.tokenizer.TokenBuffer;
+import com.khanenoor.parsavatts.ttsService.tokenizer.TokenRoutingProfile;
+import com.khanenoor.parsavatts.ttsService.tokenizer.TokenType;
 import com.khanenoor.parsavatts.util.LogUtils;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.EnumMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -41,6 +48,8 @@ public class SpeechSynthesis  {
     private static final long STOP_SUMMARY_INTERVAL_MS = 60_000L;
     private static final Map<StopReason, Integer> STOP_REASON_COUNTS = new EnumMap<>(StopReason.class);
     private static long sLastStopSummaryTimestamp = 0L;
+    private static final int MAX_SYNTHESIS_CHUNK_CODE_UNITS = 180;
+    private static final long ENGLISH_GROUP_WAIT_TIMEOUT_MS = 4000L;
 
     public static final int GENDER_MALE = 0;    //Sina
     public static final int GENDER_FEMALE = 1;  //Mina
@@ -52,6 +61,15 @@ public class SpeechSynthesis  {
     private  PreferencesChangeReceiver mPrefChangeReceiver = null;
     private int mPersianVoiceId = 1;
     private Context mContext=null;
+    private final EspeakLikeTokenDetector mChunkTokenDetector = new EspeakLikeTokenDetector();
+    private final TokenBuffer mChunkTokenBuffer = new TokenBuffer(16);
+
+    private enum TokenEngineRoute {
+        PERSIAN,
+        ENGLISH,
+        NEUTRAL
+    }
+
 
     private int resolveStoredPersianVoiceId(Context context) {
         try {
@@ -275,27 +293,239 @@ public class SpeechSynthesis  {
      * }
      */
     public synchronized int speak(String text , String language,boolean isText) throws UnsupportedEncodingException {
-        //LogUtils.w(TAG, "SpeechSynthesis1.speak language:" + language + " text:" + text);
-        //LogUtils.w(TAG,"SpeechSynthesis.speak threadId: "+ Thread.currentThread().getId() + " hashCode:" + this.hashCode());
         if (Thread.interrupted()) {
             LogUtils.i(TAG, "SpeechSynthesis.speak interrupted before processing");
             Thread.currentThread().interrupt();
             return TextToSpeech.ERROR;
         }
         if(text.length()>0){
-            int synthResult = mFaTts.synth(text);
-            if (synthResult == 0) {
-                return TextToSpeech.ERROR;
-            }
-            if (Thread.interrupted()) {
-                LogUtils.i(TAG, "SpeechSynthesis.speak interrupted after synth");
-                Thread.currentThread().interrupt();
-                return TextToSpeech.ERROR;
+            final List<String> chunks = splitIntoSynthesisChunks(text);
+            boolean forceEnglishFlush = true;
+            for (int i = 0; i < chunks.size(); i++) {
+                final String chunk = chunks.get(i);
+                final TokenRoutingProfile tokenProfile = detectChunkTokenProfile(chunk);
+                LogUtils.i(TAG, "SpeechSynthesis.speak chunk " + (i + 1) + "/" + chunks.size()
+                        + " tokenProfile " + tokenProfile.toCompactLogString());
+
+                forceEnglishFlush = synthesizeChunkByTokenGroups(chunk, forceEnglishFlush);
+                if (Thread.interrupted()) {
+                    LogUtils.i(TAG, "SpeechSynthesis.speak interrupted after chunk " + i);
+                    Thread.currentThread().interrupt();
+                    return TextToSpeech.ERROR;
+                }
             }
         }
         return 1;
     }
 
+
+
+
+    private boolean synthesizeChunkByTokenGroups(@NonNull String chunk,
+                                                boolean forceEnglishFlush) {
+        synchronized (mChunkTokenBuffer) {
+            mChunkTokenDetector.detectInto(chunk, mChunkTokenBuffer);
+
+            final StringBuilder runBuilder = new StringBuilder(chunk.length());
+            TokenEngineRoute activeRoute = TokenEngineRoute.NEUTRAL;
+
+            for (int i = 0; i < mChunkTokenBuffer.size(); i++) {
+                final int start = mChunkTokenBuffer.getStartCodeUnit(i);
+                final int end = mChunkTokenBuffer.getEndCodeUnitExclusive(i);
+                final String tokenText = chunk.substring(start, end);
+                final TokenEngineRoute tokenRoute = resolveTokenRoute(mChunkTokenBuffer.getType(i));
+
+                if (activeRoute == TokenEngineRoute.NEUTRAL) {
+                    activeRoute = tokenRoute == TokenEngineRoute.NEUTRAL ? TokenEngineRoute.PERSIAN : tokenRoute;
+                }
+
+                if (tokenRoute != TokenEngineRoute.NEUTRAL && tokenRoute != activeRoute && runBuilder.length() > 0) {
+                    forceEnglishFlush = synthesizeGroupedRun(activeRoute, runBuilder.toString(), forceEnglishFlush);
+                    runBuilder.setLength(0);
+                    activeRoute = tokenRoute;
+                }
+
+                runBuilder.append(tokenText);
+            }
+
+            if (runBuilder.length() > 0) {
+                forceEnglishFlush = synthesizeGroupedRun(activeRoute, runBuilder.toString(), forceEnglishFlush);
+            }
+        }
+        return forceEnglishFlush;
+    }
+
+    private TokenEngineRoute resolveTokenRoute(@NonNull TokenType tokenType) {
+        if (tokenType == TokenType.WORD_LATIN) {
+            return TokenEngineRoute.ENGLISH;
+        }
+        if (tokenType == TokenType.WORD_PERSIAN) {
+            return TokenEngineRoute.PERSIAN;
+        }
+        return TokenEngineRoute.NEUTRAL;
+    }
+
+    private boolean synthesizeGroupedRun(@NonNull TokenEngineRoute route,
+                                         @NonNull String text,
+                                         boolean forceEnglishFlush) {
+        if (text.trim().isEmpty()) {
+            return forceEnglishFlush;
+        }
+
+        if (route == TokenEngineRoute.ENGLISH) {
+            mEnTts.Speak(text, forceEnglishFlush);
+            waitForEnglishGroupCompletion();
+            return false;
+        }
+
+        mFaTts.synth(text);
+        return forceEnglishFlush;
+    }
+
+    private void waitForEnglishGroupCompletion() {
+        final long deadline = System.currentTimeMillis() + ENGLISH_GROUP_WAIT_TIMEOUT_MS;
+        while (System.currentTimeMillis() < deadline) {
+            if (Thread.currentThread().isInterrupted()) {
+                return;
+            }
+            final enmSpeakProgressStates state = mEnTts.mUtteranceProgressListener != null
+                    ? mEnTts.mUtteranceProgressListener.getSpeakProgressState()
+                    : enmSpeakProgressStates.onIdle;
+            if (state == enmSpeakProgressStates.onIdle) {
+                return;
+            }
+            try {
+                Thread.sleep(10L);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                return;
+            }
+        }
+        LogUtils.w(TAG, "Timed out waiting for English chunk completion");
+    }
+
+    @NonNull
+    private TokenRoutingProfile detectChunkTokenProfile(@NonNull String chunk) {
+        synchronized (mChunkTokenBuffer) {
+            mChunkTokenDetector.detectInto(chunk, mChunkTokenBuffer);
+            return TokenRoutingProfile.from(mChunkTokenBuffer);
+        }
+    }
+
+    @NonNull
+    static List<String> splitIntoSynthesisChunks(@NonNull String text) {
+        final List<String> chunks = new ArrayList<String>();
+        if (text.length() == 0) {
+            return chunks;
+        }
+
+        int chunkStart = -1;
+        int chunkLength = 0;
+        int i = 0;
+        while (i < text.length()) {
+            final int cp = Character.codePointAt(text, i);
+            final int cpCount = Character.charCount(cp);
+            if (chunkStart < 0 && !Character.isWhitespace(cp)) {
+                chunkStart = i;
+                chunkLength = 0;
+            }
+
+            if (chunkStart >= 0) {
+                chunkLength += cpCount;
+            }
+
+            final boolean boundary = isChunkBoundary(text, i, cp, chunkLength)
+                    || (chunkLength >= MAX_SYNTHESIS_CHUNK_CODE_UNITS && Character.isWhitespace(cp));
+            if (chunkStart >= 0 && boundary) {
+                addTrimmedChunk(chunks, text, chunkStart, i + cpCount);
+                chunkStart = -1;
+                chunkLength = 0;
+            }
+            i += cpCount;
+        }
+
+        if (chunkStart >= 0) {
+            addTrimmedChunk(chunks, text, chunkStart, text.length());
+        }
+        return chunks;
+    }
+
+    private static boolean isChunkBoundary(@NonNull String text,
+                                           int codePointIndex,
+                                           int codePoint,
+                                           int chunkLength) {
+        if (chunkLength <= 0) {
+            return false;
+        }
+        return (codePoint == '.' && isSentenceDotBoundary(text, codePointIndex))
+                || codePoint == '?'
+                || codePoint == 0x061F
+                || codePoint == 0x06D4
+                || codePoint == 0x2026
+                || codePoint == '\n'
+                || codePoint == '\r';
+    }
+
+    private static boolean isSentenceDotBoundary(@NonNull String text, int dotIndex) {
+        final int previousCodePoint = previousCodePoint(text, dotIndex);
+        if (previousCodePoint < 0) {
+            return false;
+        }
+
+        // Decimal and grouped numbers are not sentence boundaries.
+        if (Character.getType(previousCodePoint) == Character.DECIMAL_DIGIT_NUMBER) {
+            return false;
+        }
+
+        // Persian single-letter abbreviations such as "د." are not sentence boundaries.
+        if (isPersianLetter(previousCodePoint)) {
+            final int previousIndex = Character.offsetByCodePoints(text, dotIndex, -1);
+            final int beforePrevious = previousCodePoint(text, previousIndex);
+            if (beforePrevious < 0 || Character.isWhitespace(beforePrevious)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private static int previousCodePoint(@NonNull String text, int index) {
+        if (index <= 0) {
+            return -1;
+        }
+        final int previousIndex = Character.offsetByCodePoints(text, index, -1);
+        return Character.codePointAt(text, previousIndex);
+    }
+
+    private static boolean isPersianLetter(int codePoint) {
+        if (!Character.isLetter(codePoint)) {
+            return false;
+        }
+        final Character.UnicodeBlock block = Character.UnicodeBlock.of(codePoint);
+        return block == Character.UnicodeBlock.ARABIC
+                || block == Character.UnicodeBlock.ARABIC_SUPPLEMENT
+                || block == Character.UnicodeBlock.ARABIC_EXTENDED_A
+                || block == Character.UnicodeBlock.ARABIC_PRESENTATION_FORMS_A
+                || block == Character.UnicodeBlock.ARABIC_PRESENTATION_FORMS_B;
+    }
+
+
+    private static void addTrimmedChunk(@NonNull List<String> chunks,
+                                        @NonNull String source,
+                                        int start,
+                                        int endExclusive) {
+        int s = start;
+        int e = endExclusive;
+        while (s < e && Character.isWhitespace(source.charAt(s))) {
+            s++;
+        }
+        while (e > s && Character.isWhitespace(source.charAt(e - 1))) {
+            e--;
+        }
+        if (s < e) {
+            chunks.add(source.substring(s, e));
+        }
+    }
     /**
      * Synthesize speech to a file. The current implementation writes a valid WAV
      * file to the given path, assuming it is writable. Something like

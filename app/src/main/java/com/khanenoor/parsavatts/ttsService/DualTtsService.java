@@ -924,6 +924,7 @@ public class DualTtsService extends TextToSpeechService {
             return request.getText();
         }
     }
+
     public static final String KEY_PARAM_ISTEXT =
             "KEY_PARAM_ISTEXT";
     /**
