@@ -1,7 +1,8 @@
 # Contribution notes
 - Keep documentation concise and focused on accessibility/performance details that affect blind TalkBack users.
-- In docs, explicitly describe MBROLA as the Persian fallback path and stress rapid speech requirements for Google TalkBack.
+- In docs, describe Persian synthesis as ONNX-only (`elnaz.onnx`); MBROLA is removed from this project.
 - Mention the ONNX Persian path (`elnaz.onnx`) clearly: preload in `FaTts.Load(...)`, synthesize in `FaTts.synth(...)`, convert to PCM16, then stream through the existing callback queue.
+- State clearly that the NLP library has been removed from this project.
 - Prefer Markdown bullet lists for features, behaviors, and checklists.
 - For DualTts optimizations, prioritize concrete low-latency tactics:
   - preloading model/voice assets,
