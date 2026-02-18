@@ -1,0 +1,337 @@
+<resources xmlns:android="http://schemas.android.com/apk/res/android" xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <!--
+        Source: App icon label.
+        Description: The name of the application.
+    -->
+    <string name="app_name">پارس آوا</string>
+    <!--
+    Source: App icon label.
+    Description: The name of the application.
+-->
+
+    <!--
+       Source: Activity title.
+       Description: Title for the Settings activity.
+   -->
+    <string name="tts_settings_label">Pars Ava TTS Settings</string>
+    <!--
+        Source: Preference title.
+        Description: Title for the preference that controls default voice pitch.
+    -->
+    <string name="setting_default_pitch">Default pitch</string>
+    <!--
+        Source: Preference title.
+        Description: Title for the preference that controls default voice gender.
+    -->
+    <!--
+        Source: Preference title.
+        Description: Title for the preference that controls default speech rate multiplier.
+    -->
+    <string name="setting_default_rate">Speech rate multiplier</string>
+    <string name="setting_slider_value_description">%s%%</string>
+    <!--
+        Source: Dialog text.
+        Description: Status message shown when installing voice data.
+    -->
+    <string name="resetToDefault">reset</string>
+    <!--
+         Source: Dialog message.
+         Description: Alert dialog prompting the user to set eSpeak as their default TTS engine.
+     -->
+    <string name="set_default_message">پارس آوا بعنوان موتور پیش فرض انتخاب نشده است. آیا تمایل دارید آن را بعنوان موتور پیش فرض انتخاب نمایید؟</string>
+    <!--
+        Source: Dialog message.
+        Description: Alert dialog telling the user that voice data installation failed.
+    -->
+    <string name="voice_data_failed_message">Parsava failed to install voice data. Please check your SD card.</string>
+
+    <string name="version_apk_outdated">نسخه کنونی نرم افزار دیگر پشتیبانی نمی گردد. لطفا نسخه بروزرسانی را نصب نمایید</string>
+    <string name="version_apk_update">لطفا نرم افزار را به کمک لینک زیر بروزرسانی نمایید</string>
+    <string name="permission_call_need">برنامه برای نصب صحیح مجوز لازم است مجوز دسترسی به مدیریت تماس ها را داشته باشد</string>
+
+
+    <!--
+        Source: Dialog message.
+        Description: Alert dialog telling the user that an unknown error has occurred.
+    -->
+    <string name="error_message">Sorry, Parsava failed to start. Would you like to send an error report?</string>
+    <!--
+        Source: Dialog title.
+        Description: Alert dialog telling the user that an error occurred while loading eSpeak.
+    -->
+    <!--
+        Source: Dialog message.
+        Description: Alert dialog telling the user that an error occurred while loading eSpeak.
+    -->
+    <!--
+        Source: Displayed in the Settings activity.
+        Description: Text shown when there are no settings available for the user to change.
+    -->
+    <!--
+        Source: Label text.
+        Description: Label informing the user of the current text-to-speech language.
+    -->
+    <!--
+        Source: Label text.
+        Description: Label informing the user of how many voices are installed.
+    -->
+    <!--
+        Source: Button label.
+        Description: Button for launching general text-to-speech settings.
+    -->
+    <!--
+       Source: Button label.
+       Description: Button for launching general text-to-speech sample.
+   -->
+
+    <!--
+        Source: Button label.
+        Description: Button for launching eSpeak-specific settings.
+    -->
+    <!--
+        Source: Label text.
+        Description: Label informing the user that eSpeak is loading resources.
+    -->
+    <string name="loading">Loading, please wait…</string>
+    <!--
+        Source: Label text.
+        Description: Label informing the user that eSpeak failed to load.
+    -->
+    <string name="loading_failed">Sorry, Pars Ava failed to load.</string>
+    <!--
+        Source: Spoken aloud.
+        Description: Sample text spoken aloud when the user is trying out a language.
+    -->
+    <string name="sample_text">This is a sample of text spoken in <xliff:g>%s</xliff:g></string>
+    <string name="english_simple_sample_text">This is a sample of text spoken</string>
+    <string name="sample_not_ready">Sample playback is not ready yet. Please try again shortly.</string>
+
+    <!--
+        Source: Pitch preference labels.
+        Description: Labels for possible pitch values.
+    -->
+    <!--
+        Source: Gender preference labels.
+        Description: Labels for possible gender values.
+    -->
+    <!--
+        Source: Rate preference labels.
+        Description: Labels for possible rate multiplier values.
+    -->
+    <string name="eng">سلام hello</string>
+    <string name="fas">سلام</string>
+
+    <!-- Legacy 2 character language codes for old prefs. -->
+
+    <!-- Settings Title Persian -->
+    <string name="voice_label">عنوان : تنظیمات صدا</string>
+    <string name="voice_command">تنظیمات موتور</string>
+    <string name="general_label">عنوان : تنظیمات عمومی</string>
+    <string name="puncuation_command">علائم</string>
+    <string name="number_command">اعداد</string>
+    <string name="number_language_command">زبان اعداد</string>
+    <string name="emoji_command">شکلک ها</string>
+    <string name="user_dictionary_label">عنوان : تنظیمات واژگان کاربر</string>
+    <string name="add_word">افزودن لغت</string>
+    <string name="word_list">لیست لغات</string>
+    <string name="user_dictionary_manage">مدیریت واژگان کاربر</string>
+    <string name="footer_branding">خانه نور ایرانیان بصیر</string>
+    <string name="advanced_title">عنوان : تنظیمات پیشرفته</string>
+    <string name="tts_sample">خواندن متن نمونه</string>
+    <string name="register_command">ثبت مجوز</string>
+    <string name="support_command">پشتیبانی</string>
+    <string name="about_command">درباره ما</string>
+    <string name="about_body">مالکیت معنوی اپلیکیشن پارس آوا متعلق به خانه نور ایرانیان بصیر می باشد.\n\n
+ توسعه اپلیکیشن توسط مهندس نم نبات انجام گرفته است.</string>
+    <string name="title_activity_about">درباره ما</string>
+
+    <string name="voice_settings_header">تنظیمات صدا</string>
+    <string name="voice_test">تست</string>
+    <string name="vnspeak_speed">سرعت</string>
+    <string name="vnspeak_speed_decrease">کاهش سرعت</string>
+    <string name="vnspeak_speed_increase">افزایش سرعت</string>
+    <string name="vnspeak_volume">بلندی</string>
+    <string name="vnspeak_volume_decrease">کاهش بلندی</string>
+    <string name="vnspeak_volume_increase">افزایش بلندی</string>
+    <string name="vnspeak_pitch">زیر و بمی</string>
+    <string name="vnspeak_pitch_decrease">کاهش زیر و بمی</string>
+    <string name="vnspeak_pitch_increase">افزایش زیر و بمی</string>
+    <string name="vnspeak_select_language">انتخاب زبان:</string>
+    <string name="vnspeak_reset">پیش فرض</string>
+    <string name="vnspeak_increase">+</string>
+    <string name="vnspeak_decrease">-</string>
+    <string name="vnspeak_select_voice">یک صدا برای این زبان انتخاب کنید:</string>
+    <string name="vnspeak_language">زبان</string>
+    <string name="vnspeak_concatenator_be"> به </string>
+
+    <string name="enter_word_userdict_a">واژه را وارد نمایید</string>
+    <string name="enter_word_userdict_a_hint">واژه جاری</string>
+    <string name="enter_word_userdict_b">رشته آوایی آن را وارد نمایید</string>
+    <string name="enter_word_userdict_b_hint">رشته آوایی</string>
+
+    <string name="userdict_wordlist_nowords_1">No words added</string>
+    <string name="userdict_wordlist_nowords_2">User dictionary is empty</string>
+    <string name="userdict_addword_add_button">افزودن</string>
+    <string name="userdict_suggest_button">پیشنهاد</string>
+    <string name="userdict_read_button">خواندن</string>
+
+    <string name="userdict_replace_button">جایگزین</string>
+
+    <string name="userdict_pos_unknown">نامشخص</string>
+    <string name="userdict_pos_noun">اسم</string>
+    <string name="userdict_pos_verb">فعل</string>
+    <string name="userdict_pos_adv">قید</string>
+    <string name="userdict_pos_adj">صفت</string>
+    <string name="userdict_pos_pron">ضمیر</string>
+    <string name="userdict_pos_num">عدد</string>
+    <string name="userdict_pos_prep">حرف اضافه</string>
+    <string name="userdict_pos_conj">حرف ربط</string>
+
+    <string name="userdict_addword_screen_title">افزودن واژه</string>
+
+    <string name="userdict_addword_error_word_empty">فیلد واژه نباید خالی باشد</string>
+    <string name="userdict_addword_error_pronunce_empty">فیلد رشته آوایی نباید خالی باشد</string>
+    <string name="userdict_addword_error_word_wrong">واژه باید فقط شامل حروف فارسی باشد</string>
+    <string name="userdict_addword_error_pronunce_wrong">رشته آوایی نادرست می باشد</string>
+    <string name="userdict_addword_error_word_double">واژه وارد شده تکراری می باشد</string>
+
+
+    <string name="userdict_wordlist_menu_delete">حذف</string>
+    <string name="userdict_wordlist_menu_change">تغییر</string>
+
+    <string name="userdict_wordlist_search">جستجو</string>
+
+    <string name="userdict_addword_new_succeed_msg">واژه با موفقیت افزوده گردید</string>
+    <string name="userdict_addword_change_succeed_msg">واژه با موفقیت تغییر یافت</string>
+
+    <string name="title_activity_voice_settings">VoiceSettingsActivity</string>
+    <!-- Strings used for fragments for navigation -->
+    <string name="next">Next</string>
+    <string name="previous">Previous</string>
+    <!-- Default Values -->
+    <string name="persian_voice_default">1</string>
+    <string name="persian_voice_pitch_default">50</string>
+    <string name="persian_voice_rate_default">50</string>
+    <string name="persian_voice_volume_default">100</string>
+
+    <string name="english_voice_pitch_default">50</string>
+    <string name="english_voice_rate_default">50</string>
+    <string name="english_voice_volume_default">100</string>
+
+    <string name="tts_number_mode_default">0</string>
+    <string name="tts_digits_language_default">2</string>
+    <string name="tts_punctuation_mode_default">0</string>
+    <string name="tts_emoji_mode_default">1</string>
+    <!-- activity settings Values -->
+
+    <string name="persian_language">فارسی</string>
+    <string name="english_language">انگلیسی</string>
+
+    <string name="sina_voice">سینا</string>
+    <string name="mina_voice">مینا</string>
+
+    <string name="lorem_ipsum">sum</string>
+
+    <!-- Punctuation and Number Dialogs -->
+    <string name="punctuaions_header">علائم</string>
+    <string name="number_header">اعداد</string>
+    <string name="number_digits_header">زبان اعداد</string>
+    <string name="None">هیچکدام</string>
+    <string name="Some">پیش فرض</string>
+    <string name="All">همه</string>
+
+    <string name="OneDigit">تک رقمی</string>
+
+    <string name="Pairs">دو رقمی</string>
+    <string name="Triplets">سه رقمی</string>
+    <string name="Number_Continuous">پیوسته</string>
+    <string name="digits_language_farsi">فارسی</string>
+    <string name="digits_language_english">انگلیسی</string>
+    <string name="digits_language_default">وابسته به محتوا</string>
+    <string name="digits_language_open">تغییر زبان اعداد</string>
+    <string name="digits_language_summary_description">زبان فعلی اعداد: %1$s</string>
+    <!-- User Dict -->
+    <string name="userdict_wordlist_header">لیست واژگان کاربر</string>
+    <string name="user_dictionary_manage_header">مدیریت واژگان کاربر</string>
+    <string name="user_dictionary_manage_body">واژگان سفارشی خود را در این بخش مدیریت کنید. برای وارد کردن، تنها فایل‌های با پسوند ‎.dict‎ را انتخاب کنید.</string>
+    <string name="user_dictionary_export">صدور واژگان کاربر</string>
+    <string name="user_dictionary_import">وارد کردن واژگان کاربر</string>
+    <string name="user_dictionary_clear">حذف همه واژگان کاربر</string>
+    <string name="user_dictionary_export_success">صدور واژگان کاربر با موفقیت در مسیر زیر انجام شد: %1$s</string>
+    <string name="user_dictionary_export_error">در صدور واژگان کاربر خطایی رخ داد.</string>
+    <string name="user_dictionary_export_missing">فایل واژگان کاربر یافت نشد.</string>
+    <string name="user_dictionary_export_canceled">عملیات صدور واژگان کاربر لغو شد.</string>
+    <string name="user_dictionary_import_success">%1$d واژه جدید پس از حذف موارد تکراری به واژگان کاربر افزوده شد.</string>
+    <string name="user_dictionary_import_error">در وارد کردن واژگان کاربر خطایی رخ داد.</string>
+    <string name="user_dictionary_import_picker_missing">برنامه‌ای برای انتخاب فایل یافت نشد.</string>
+    <string name="user_dictionary_import_picker_unavailable">امکان باز کردن انتخاب‌گر فایل وجود ندارد.</string>
+    <string name="user_dictionary_import_empty">واژگانی افزوده نگردید.</string>
+    <string name="user_dictionary_import_canceled">عملیات وارد کردن واژگان کاربر لغو شد.</string>
+    <string name="user_dictionary_import_no_file_selected">هیچ فایلی انتخاب نشد.</string>
+    <string name="user_dictionary_import_idle">در انتظار وارد کردن واژگان...</string>
+    <string name="user_dictionary_import_in_progress">در حال وارد کردن واژگان...</string>
+    <string name="user_dictionary_import_success_status">وارد کردن واژگان کامل شد.</string>
+    <string name="user_dictionary_import_error_status">در وارد کردن واژگان خطایی رخ داد.</string>
+    <string name="user_dictionary_import_invalid_type">لطفاً فقط فایل با پسوند ‎.dict‎ را انتخاب کنید.</string>
+    <string name="user_dictionary_import_invalid_type_status">فایل انتخاب‌شده یک واژگان کاربر معتبر نیست.</string>
+    <string name="user_dictionary_import_security_error">مجوز دسترسی به فایل واژگان وجود ندارد.</string>
+    <string name="user_dictionary_import_security_error_status">به دلیل محدودیت دسترسی، وارد کردن واژگان انجام نشد.</string>
+    <string name="user_dictionary_import_io_error">خطا در خواندن فایل واژگان کاربر.</string>
+    <string name="user_dictionary_import_io_error_status">خطایی در هنگام خواندن فایل واژگان رخ داد.</string>
+    <string name="user_dictionary_import_picker_missing_status">امکان باز کردن فایل‌های واژگان وجود ندارد.</string>
+    <string name="user_dictionary_import_picker_unavailable_status">انتخاب‌گر فایل در دسترس نیست.</string>
+    <string name="user_dictionary_import_canceled_status">وارد کردن واژگان متوقف شد.</string>
+    <string name="user_dictionary_import_no_file_selected_status">هیچ فایل واژگانی برای وارد کردن دریافت نشد.</string>
+    <string name="user_dictionary_import_merge_error_status">ادغام فایل واژگان انجام نشد.</string>
+    <string name="user_dictionary_export_status_saved">فایل واژگان کاربر در مسیر زیر ذخیره شد: %1$s</string>
+    <string name="user_dictionary_export_status_error">صدور واژگان کاربر ناموفق بود.</string>
+    <string name="user_dictionary_clear_success">%1$d واژه از واژگان کاربر حذف شد.</string>
+    <string name="user_dictionary_clear_empty">واژه‌ای برای حذف وجود ندارد.</string>
+    <string name="userdict_neword_header">افزودن واژه</string>
+
+    <string name="emoji_setting_header">شکلک ها</string>
+    <string name="emoji_setting_active">فعال</string>
+    <string name="emoji_setting_inactive">غیر فعال</string>
+
+    <string name="license_title">ثبت نام</string>
+    <string name="license_firstname">نام</string>
+    <string name="license_lastname">نام خانوادگی</string>
+    <string name="license_mobile">شماره موبایل</string>
+    <string name="license_email">ایمیل</string>
+    <string name="license_softwarekey">کد نرم افزار</string>
+    <string name="license_register">ارسال درخواست</string>
+    <string name="license_receivelicensekey">دریافت کد فعال سازی</string>
+
+    <string name="license_err_firstname_empty">فیلد نام نمی تواند خالی باشد</string>
+    <string name="license_err_lastname_empty">فیلد نام خانوادگی نمی تواند خالی باشد</string>
+    <string name="license_err_mobile_empty">فیلد شماره موبایل نمی تواند خالی باشد</string>
+    <string name="license_err_email_empty">فیلد ایمیل نمی تواند خالی باشد</string>
+    <string name="license_err_softwarekey_empty">فیلد کد نرم افزار نمی تواند خالی باشد</string>
+
+    <string name="WebService_Error_InternetConnection">اینترنت وصل نیست، برنامه نیاز به اتصال به اینترنت دارد</string>
+    <string name="WebService_Register_Succeed">ثبت مجوز با موفقیت انجام شد</string>
+    <string name="WebService_ReceiverLicense_Succeed">دریافت مجدد مجوز و ثبت آن با موفقیت انجام شد</string>
+    <string name="WebService_ReceiverLicense_Failed">این موبایل در سرور ثبت نام نشده است، مجوزی یافت نشد!</string>
+    <string name="WebService_Register_CallFailed"> فراخوانی وب سرویس با خطا روبرو شده است</string>
+
+    <string name="power_save_alarm_xiaomi">موبایل شما شیائومی می باشد، لازم است که حالت ذخیره باتری برای برنامه پارس آوا را غیرفعال نمایید</string>
+    <string name="power_save_alarm">موبایل شما شیائومی یا هوآوی می باشد. برای کارکرد صحیح پارس آوا، لازم است که پارس آوا را جز لیست سفید در بخش ذخیره باتری قرار دهید. اگر موبایل شما شیائومی می باشد، لازم ست که گزینه Do not restrict background activity را نیز انتخاب نمایید و همچنین لازم است که Auto Start برای پارس آوا را فعال سازید.</string>
+
+    <string name="save_to_file">ساخت فایل صوتی</string>
+    <string name="text_to_save">لطفا متن را وارد کنید…</string>
+    <string name="save_button_label">ذخیره</string>
+
+    <string name="save_file_log1">لطفا متن مورد نظر خود را وارد یا پیست کنید!</string>
+    <string name="save_file_progress_wait">صبور باشید</string>
+    <string name="save_to_file_title">ذخیره در فایل صوتی</string>
+    <string name="save_to_file_succeed">با موفقیت در پوشه Downloads ذخیره گردید</string>
+    <string name="save_to_file_err_not_removable">خطا : فایل ParsAvaOutput.wav در پوشه Downloads موجود هست و قابل حذف کردن نیست، لطفا آن را بصورت دستی حذف نمایید</string>
+    <string name="save_to_file_err_not_removable2">خطا : فایل ParsAva1.wav در پوشه Downloads موجود هست و قابل حذف کردن نیست، لطفا آن را بصورت دستی حذف نمایید</string>
+    <string name="low_memory_msg">سیستم حافظه آزاد اندکی دارد، لطفا برنامه ها بجز پارس آوا و تالک بک را ببندید تا حافظه بیشتری آزاد گردد</string>
+    <string name="title_activity_support">SupportActivity</string>
+
+    <string name="support_battery_permission">فعال سازی مجوز عدم محدودیت باتری</string>
+    <string name="setting_app_open">باز نمودن صفحه تنظیمات برنامه</string>
+    <string name="setting_tts_open">صفحه تنظیمات TTS</string>
+    <string name="xiaomi_foreground_notification_body">Keeping ParsAva’s MBROLA-based Persian voice alive for TalkBack on Xiaomi devices</string>
+</resources>

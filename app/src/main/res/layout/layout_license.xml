@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layoutDirection="rtl"
+    >
+
+    <TextView
+        android:id="@+id/license_header"
+        style="@android:style/TextAppearance.Medium"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="5.0dip"
+        android:gravity="center_vertical"
+        android:text="@string/license_title"
+        android:textColor="#8D6E63"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="VisualLintOverlap"
+        android:maxWidth="300dip"/>
+
+    <EditText
+        android:id="@+id/license_first_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:autofillHints="name"
+        android:hint="@string/license_firstname"
+        android:inputType="textPersonName"
+        android:minHeight="48dp"
+        android:layout_marginTop="20dip"
+        app:layout_constraintStart_toStartOf="@id/license_header"
+        app:layout_constraintTop_toTopOf="@id/license_header"
+        tools:ignore="VisualLintTextFieldSize"
+        android:maxWidth="300dip"/>
+
+    <EditText
+        android:id="@+id/license_last_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:autofillHints="name"
+        android:hint="@string/license_lastname"
+        android:inputType="textPersonName"
+        android:minHeight="48dp"
+        app:layout_constraintStart_toStartOf="@id/license_first_name"
+        app:layout_constraintTop_toBottomOf="@id/license_first_name"
+        tools:ignore="VisualLintTextFieldSize"
+        android:maxWidth="300dip"/>
+
+    <EditText
+        android:id="@+id/license_mobile"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:autofillHints="phone"
+        android:hint="@string/license_mobile"
+        android:inputType="phone"
+        android:minHeight="48dp"
+        app:layout_constraintStart_toStartOf="@id/license_last_name"
+        app:layout_constraintTop_toBottomOf="@id/license_last_name"
+        tools:ignore="VisualLintTextFieldSize"
+        android:maxWidth="300dip"/>
+
+    <EditText
+        android:id="@+id/license_email"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:autofillHints="emailAddress"
+        android:hint="@string/license_email"
+        android:inputType="textEmailAddress"
+        android:minHeight="48dp"
+        app:layout_constraintStart_toStartOf="@id/license_mobile"
+        app:layout_constraintTop_toBottomOf="@id/license_mobile"
+        tools:ignore="VisualLintTextFieldSize"
+        android:maxWidth="300dip"/>
+
+    <EditText
+        android:id="@+id/license_softwarekey"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:autofillHints=""
+        android:hint="@string/license_softwarekey"
+        android:inputType="number"
+        android:minHeight="48dp"
+        app:layout_constraintStart_toStartOf="@id/license_email"
+        app:layout_constraintTop_toBottomOf="@id/license_email"
+        tools:ignore="VisualLintTextFieldSize"
+        android:maxWidth="300dip"/>
+
+    <Button
+        android:id="@+id/license_register"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/license_register"
+        app:layout_constraintTop_toBottomOf="@id/license_softwarekey"
+        app:layout_constraintStart_toStartOf="@id/license_softwarekey"
+        tools:ignore="VisualLintButtonSize"
+        android:maxWidth="300dip"/>
+
+    <Button
+        android:id="@+id/license_receivelicensekey"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/license_receivelicensekey"
+        app:layout_constraintTop_toBottomOf="@id/license_register"
+        app:layout_constraintStart_toStartOf="@id/license_register"
+        tools:ignore="VisualLintButtonSize"
+        android:maxWidth="300dip"/>
+
+    <TextView
+        android:id="@+id/license_errors"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text=""
+        app:layout_constraintTop_toBottomOf="@id/license_receivelicensekey"
+        app:layout_constraintStart_toStartOf="@id/license_receivelicensekey"
+        android:textColor="@color/design_default_color_error"
+        />
+
+</androidx.constraintlayout.widget.ConstraintLayout >

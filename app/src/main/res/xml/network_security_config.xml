@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="true">http://parsava.ir/</domain>
+        <domain includeSubdomains="true">parsava.ir</domain>
+        <!--<domain includeSubdomains="true">http://www.parsava.ir/</domain>
+        <domain includeSubdomains="true">www.parsava.ir</domain>-->
+    </domain-config>
+</network-security-config>

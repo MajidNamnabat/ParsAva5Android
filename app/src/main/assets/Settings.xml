@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Setting>
+  <Initializer>
+    <StandardCharacter>Data/StandardCharDataBase.dat</StandardCharacter>
+	<LettersDefinitionPath>Data/Letters.xml</LettersDefinitionPath>
+	<EmojiDefinitionPath>Data/EmojiSet.xml</EmojiDefinitionPath>
+    <LexiconDocumentPath>Data/Lexicon.dat</LexiconDocumentPath>
+    <UserLexiconDocumentPath>UserDictionary.dict</UserLexiconDocumentPath>
+    <MutualMatrixDocumentPath>Data/FinalMutualRestriction.mxv</MutualMatrixDocumentPath>
+    <OrderMatrixDocumentPath>Data/FinalOrderRestriction.mxv</OrderMatrixDocumentPath>
+    <DelimiterDocumentPath>Data/DelimitersTokens.xml</DelimiterDocumentPath>
+    <GenetiverModelPath>Data/Genetive.mdl</GenetiverModelPath>
+    <POSDisambiguatorModelPath>Data/POSDisambiguator.mdl</POSDisambiguatorModelPath>
+      <LTSModel>Data/LTS.mdl</LTSModel>
+	  <VoicePath0>Data/Default</VoicePath0>	
+	  <VoicePath1>Data/Voice1</VoicePath1>	 
+  </Initializer>
+</Setting>

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    tools:context=".SupportActivity">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+    <LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+    <Button
+        android:id="@+id/btnSupportBatteryPermission"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/support_battery_permission"
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="15dp"
+        style="?android:attr/buttonBarButtonStyle"
+        android:layoutDirection="rtl"
+        android:layout_gravity="end"/>
+    <Button
+        android:id="@+id/btnShowAppsSettings"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/setting_app_open"
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="15dp"
+        style="?android:attr/buttonBarButtonStyle"
+        android:layoutDirection="rtl"
+        android:layout_gravity="end"/>
+ </LinearLayout>
+        <TextView
+            android:id="@+id/xiaomi_notice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="6dp"
+            android:visibility="gone"
+            android:textColor="@color/design_default_color_error"/>
+
+    </LinearLayout>
+
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
