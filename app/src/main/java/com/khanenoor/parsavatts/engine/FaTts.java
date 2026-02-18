@@ -8,6 +8,9 @@ import com.khanenoor.parsavatts.Preferences;
 import com.khanenoor.parsavatts.impractical.Language;
 import com.khanenoor.parsavatts.impractical.SpeechSynthesisConfigure;
 import com.khanenoor.parsavatts.util.LogUtils;
+import com.microsoft.onnxruntime.OrtEnvironment;
+import com.microsoft.onnxruntime.OrtException;
+import com.microsoft.onnxruntime.OrtSession;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -54,6 +57,10 @@ public class FaTts implements Serializable {
     private int mSpeechRateValue = 0;
     private static final ExecutorService INSTALL_CHECK_EXECUTOR = Executors.newSingleThreadExecutor();
     private static final long INSTALL_CHECK_TIMEOUT_SECONDS = 5L;
+    private static final String PERSIAN_ONNX_MODEL_ASSET = "elnaz.onnx";
+    private transient OrtEnvironment mOnnxEnvironment;
+    private transient OrtSession mOnnxSession;
+    private String mOnnxModelPath;
     /////Load Libraries Section
     static {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> INSTALL_CHECK_EXECUTOR.shutdownNow()));
@@ -97,6 +104,7 @@ public class FaTts implements Serializable {
             //LogUtils.w(TAG,"FaTts.Install result1:" + result);
             result = copyAsset(am, "ic_action_dark.bmp", "/data/data/" + package_name_static + "/ic_action_dark.bmp");
             result = copyAsset(am, "UserDictionary.dict", "/data/data/" + package_name_static + "/UserDictionary.dict");
+            result = copyAsset(am, PERSIAN_ONNX_MODEL_ASSET, "/data/data/" + package_name_static + "/" + PERSIAN_ONNX_MODEL_ASSET);
 
         } catch (Exception ex){
             LogUtils.w(TAG,"FaTts.Insll " + ex.getMessage());
@@ -106,6 +114,10 @@ public class FaTts implements Serializable {
                         int nMode, int nScreenReader) {
         String path =  "/data/data/" + package_name + "/Settings.xml";
         try {
+                if (!loadPersianOnnxModel(cnx)) {
+                    LogUtils.e(TAG, "Error in Load: failed to initialize Persian ONNX model " + PERSIAN_ONNX_MODEL_ASSET);
+                    return false;
+                }
                 //LogUtils.w(TAG, " RegisterCallbackNLP Done " + nlpHand);
                 //Load Preferences and Settings
                 Preferences prefs = new Preferences(cnx);
@@ -125,9 +137,70 @@ public class FaTts implements Serializable {
     }
     public void Unload(){
         try {
+            closePersianOnnxModel();
         }  catch (Exception ex) {
             LogUtils.e(TAG, " Error in UnloadNLP " + ex.getMessage());
         }
+    }
+
+    private synchronized boolean loadPersianOnnxModel(Context context) {
+        if (context == null) {
+            LogUtils.e(TAG, "loadPersianOnnxModel failed: context is null");
+            return false;
+        }
+
+        if (mOnnxSession != null) {
+            return true;
+        }
+
+        try {
+            final String modelPath = resolvePersianOnnxModelPath(context);
+            if (modelPath == null || modelPath.isEmpty()) {
+                LogUtils.e(TAG, "loadPersianOnnxModel failed: empty model path");
+                return false;
+            }
+
+            if (mOnnxEnvironment == null) {
+                mOnnxEnvironment = OrtEnvironment.getEnvironment();
+            }
+            OrtSession.SessionOptions options = new OrtSession.SessionOptions();
+            options.setOptimizationLevel(OrtSession.SessionOptions.OptLevel.ALL_OPT);
+            mOnnxSession = mOnnxEnvironment.createSession(modelPath, options);
+            mOnnxModelPath = modelPath;
+
+            LogUtils.i(TAG, "Persian ONNX model loaded: " + mOnnxModelPath);
+            return true;
+        } catch (IOException | OrtException e) {
+            LogUtils.e(TAG, "loadPersianOnnxModel failed: " + e.getMessage());
+            closePersianOnnxModel();
+        }
+
+        return false;
+    }
+
+    private String resolvePersianOnnxModelPath(Context context) throws IOException {
+        final String destinationPath = "/data/data/" + package_name + "/" + PERSIAN_ONNX_MODEL_ASSET;
+        File destinationFile = new File(destinationPath);
+        if (!destinationFile.exists() || destinationFile.length() == 0L) {
+            boolean copied = copyAsset(context.getAssets(), PERSIAN_ONNX_MODEL_ASSET, destinationPath);
+            if (!copied) {
+                throw new IOException("Unable to copy Persian ONNX model to " + destinationPath);
+            }
+            destinationFile = new File(destinationPath);
+        }
+        return destinationFile.getAbsolutePath();
+    }
+
+    private synchronized void closePersianOnnxModel() {
+        if (mOnnxSession != null) {
+            try {
+                mOnnxSession.close();
+            } catch (OrtException e) {
+                LogUtils.w(TAG, "closePersianOnnxModel session close failed", e);
+            }
+            mOnnxSession = null;
+        }
+        mOnnxModelPath = null;
     }
 
     public int getVoice() {
