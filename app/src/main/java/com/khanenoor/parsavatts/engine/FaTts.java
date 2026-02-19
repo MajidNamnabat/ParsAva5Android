@@ -314,7 +314,7 @@ public class FaTts implements Serializable {
                 inputs.put(inputName, inputTensor);
                 if (mOnnxScalesInputName != null && !mOnnxScalesInputName.isEmpty()) {
                     float[] scales = new float[]{ONNX_NOISE_SCALE, mOnnxLengthScale, ONNX_NOISE_W};
-                    try (OnnxTensor scalesTensor = OnnxTensor.createTensor(mOnnxEnvironment, java.nio.FloatBuffer.wrap(scales), new long[]{1, 3})) {
+                    try (OnnxTensor scalesTensor = OnnxTensor.createTensor(mOnnxEnvironment, java.nio.FloatBuffer.wrap(scales), new long[]{3})) {
                         inputs.put(mOnnxScalesInputName, scalesTensor);
                         try (OrtSession.Result result = mOnnxSession.run(inputs)) {
                             final byte[] pcm16Wave = extractPcmWave(result);
