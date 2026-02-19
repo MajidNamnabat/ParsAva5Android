@@ -291,6 +291,7 @@ public class FaTts implements Serializable {
     }
 */
     synchronized boolean synthWithOnnx(String persianText) {
+        persianText = "m æ n d æ r ʃ æ h r e ʃ i r ɒ z h æ s t s æ d i ʃ i r ɒ z i d æ r s ɒ l e ʃ e ʃ s æ d o b i s t o n o h h e d ʒ r i j e q æ m æ r i m i z i s t";
         if (mOnnxSession == null) {
             if (!loadPersianOnnxModel(mContext)) {
                 return false;
