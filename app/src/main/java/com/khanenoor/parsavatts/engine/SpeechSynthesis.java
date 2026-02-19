@@ -42,7 +42,8 @@ public class SpeechSynthesis  {
         TIMEOUT,
         UNKNOWN
     }
-    final int VOICE0_SINA_SAMPLE_RATE = 16000;
+    //change temporary final int VOICE0_SINA_SAMPLE_RATE = 16000;
+    final int VOICE0_SINA_SAMPLE_RATE = 22050;
     final int VOICE1_MINA_SAMPLE_RATE = 22050;
     private static final String TAG = SpeechSynthesis.class.getSimpleName();
     private static final long STOP_SUMMARY_INTERVAL_MS = 60_000L;

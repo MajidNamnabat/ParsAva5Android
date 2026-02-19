@@ -291,7 +291,9 @@ public class FaTts implements Serializable {
     }
 */
     synchronized boolean synthWithOnnx(String persianText) {
-        persianText = "m æ n d æ r ʃ æ h r e ʃ i r ɒ z h æ s t s æ d i ʃ i r ɒ z i d æ r s ɒ l e ʃ e ʃ s æ d o b i s t o n o h h e d ʒ r i j e q æ m æ r i m i z i s t";
+        persianText = "mæn_dær_ʃæhre_ʃirɒz_hæstæm_sæd?i_ʃirɒzi_dær_sɒle_ʃeʃsædobistonoh_hedʒri_jeqæmæri_mizist";
+        //[['m', 'a', 'n', ' ', 'd', 'ˈ', 'a', 'r', ' ', 'ʃ', 'ˈ', 'a', 'h', 'r', ' ', 'ʃ', 'i', 'r', 'ˈ', 'ɑ', 'z', ' ', 'h', 'ˈ', 'a', 's', 't', 'a', 'm', '.'], ['s', 'ˈ', 'a', 'ʔ', 'd', 'i', ' ', 'ʃ', 'i', 'r', 'ˈ', 'ɑ', 'z', 'i', ' ', 'd', 'ˈ', 'a', 'r', ' ', 's', 'ˈ', 'ɑ', 'l', ' ', 'ʃ', 'ˈ', 'e', 'ʃ', 's', 'a', 'd', ' ', 'v', 'ˈ', 'a', ' ', 'b', 'i', 's', 't', ' ', 'v', 'ˈ', 'a', ' ', 'n', 'ˈ', 'a', ' ', 'h', 'ˈ', 'e', 'd', 'ʒ', 'r', 'i', ' ', 'q', '1', 'a', 'm', 'ˈ', 'a', 'r', 'i', ' ', 'm', 'i', ' ', 'z', 'ˈ', 'i', 's', 't', '.']]
+        //
         if (mOnnxSession == null) {
             if (!loadPersianOnnxModel(mContext)) {
                 return false;
@@ -302,7 +304,12 @@ public class FaTts implements Serializable {
         }
 
         try {
-            final long[] tokenIds = textToTokenIds(persianText);
+            //one noise is inserted
+            //it is very slow
+            //long[] tokenIds = textToTokenIds(persianText);
+            //long[] tokenIds = {1, 0, 25, 0, 14, 0, 26, 0, 3, 0, 17, 0, 120, 0, 14, 0, 30, 0, 3, 0, 96, 0, 120, 0, 14, 0, 20, 0, 30, 0, 3, 0, 96, 0, 21, 0, 30, 0, 120, 0, 51, 0, 38, 0, 3, 0, 20, 0, 120, 0, 14, 0, 31, 0, 32, 0, 14, 0, 25, 0, 10, 0, 31, 0, 120, 0, 14, 0, 109, 0, 17, 0, 21, 0, 3, 0, 96, 0, 21, 0, 30, 0, 120, 0, 51, 0, 38, 0, 21, 0, 3, 0, 17, 0, 120, 0, 14, 0, 30, 0};
+            //long[] tokenIds = {1, 0, 25, 0, 14, 0, 26, 0, 3, 0, 17, 0, 120, 0, 14, 0, 30, 0, 3, 0, 96, 0, 120, 0, 14, 0, 20, 0, 30, 0, 3, 0, 96, 0, 21, 0, 30, 0, 120, 0, 51, 0, 38, 0, 3, 0, 20, 0, 120, 0, 14, 0, 31, 0, 32, 0, 14, 0, 25, 0, 10, 0, 31, 0, 120, 0, 14, 0, 109, 0, 17, 0, 21, 0, 3, 0, 96, 0, 21, 0, 30, 0, 120, 0, 51, 0, 38, 0, 21, 0, 3, 0, 17, 0, 120, 0, 14, 0, 30, 0};
+            long[] tokenIds = {1, 0, 25, 0, 14, 0, 26, 0, 3, 0, 17, 0, 120, 0, 14, 0, 30, 0};
             if (tokenIds.length == 0) {
                 return false;
             }
@@ -335,6 +342,7 @@ public class FaTts implements Serializable {
         }
 
                 if (mOnnxScalesInputName != null && !mOnnxScalesInputName.isEmpty()) {
+                    //mOnnxLengthScale=1.0f;
                     float[] scales = new float[]{ONNX_NOISE_SCALE, mOnnxLengthScale, ONNX_NOISE_W};
                     try (OnnxTensor scalesTensor = OnnxTensor.createTensor(mOnnxEnvironment, java.nio.FloatBuffer.wrap(scales), new long[]{3})) {
                         inputs.put(mOnnxScalesInputName, scalesTensor);
@@ -621,6 +629,12 @@ public class FaTts implements Serializable {
             float[][][] arr = (float[][][]) tensorValue;
             return (arr.length == 0 || arr[0].length == 0) ? null : arr[0][0];
         }
+
+        if (tensorValue instanceof float[][][][]) {
+            float[][][][] arr = (float[][][][]) tensorValue;
+            return (arr.length == 0 || arr[0].length == 0) ? null : arr[0][0][0];
+        }
+
         return null;
     }
 
@@ -636,6 +650,11 @@ public class FaTts implements Serializable {
             short[][][] arr = (short[][][]) tensorValue;
             return (arr.length == 0 || arr[0].length == 0) ? null : arr[0][0];
         }
+        if (tensorValue instanceof short[][][][]) {
+            short[][][][] arr = (short[][][][]) tensorValue;
+            return (arr.length == 0 || arr[0].length == 0) ? null : arr[0][0][0];
+        }
+
         return null;
     }
 
