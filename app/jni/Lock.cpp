@@ -4,7 +4,7 @@
 #include <cstdio>
 #include <ctime>
 #include <string>
-#include "Steganography.h"
+//#include "Steganography.h"
 #include <filesystem>
 #include <fstream>
 #include <sstream>
@@ -141,7 +141,7 @@ std::string getEncodeData(std::string &pck_name, std::string &data, int style) {
             strcpy(key,PUBLICLIC_STEGANOGRAPHY_KEY);
 
         }*/
-        strPublicKey = readKey(path, key);
+        //strPublicKey = readKey(path, key);
         if(strPublicKey==""){
             return "";
         }
@@ -174,7 +174,7 @@ std::string getDecodeData(std::string pck_name, std::string encryptedData, int s
     std::string strData;
     if (style == 3 || style == 2) {
         std::string path = "/data/data/" + (std::string) pck_name + "/ic_action_dark.bmp";
-        strPrivateKey = readKey(path, PRIVATELIC_STEGANOGRAPHY_KEY);
+        //strPrivateKey = readKey(path, PRIVATELIC_STEGANOGRAPHY_KEY);
         if(strPrivateKey==""){
             return "";
         }
@@ -190,7 +190,7 @@ std::string getDecodeData(std::string pck_name, std::string encryptedData, int s
     }*/
     return strData;
 }
-
+/*
 extern "C" JNIEXPORT  jstring   JNICALL
 Java_com_khanenoor_parsavatts_Lock_getDecodeData(JNIEnv *env, jclass jclass, jstring pck_name,
                                                  jstring dataEncrypt, jint style) {
@@ -223,20 +223,20 @@ Java_com_khanenoor_parsavatts_Lock_getDecodeData(JNIEnv *env, jclass jclass, jst
     return jstrData;
 
 }
-
+*/
 char *readImageFile(const std::string &path, std::streamsize &fileSize) {
-    std::ifstream sizeFile(path.c_str(), ios::binary);
+    std::ifstream sizeFile(path.c_str(), std::ios::binary);
     if(!sizeFile.good()){
         sizeFile.close();
         return nullptr;
     }
     const auto begin = sizeFile.tellg();
-    sizeFile.seekg(0, ios::end);
+    sizeFile.seekg(0, std::ios::end);
     const auto end = sizeFile.tellg();
     const auto fsize = (std::streamsize) (end - begin);
     fileSize = fsize;
     char *image = (char *) malloc(fsize * sizeof(char));
-    sizeFile.seekg(0, ios::beg);
+    sizeFile.seekg(0, std::ios::beg);
     if (sizeFile.read(image, fsize)) {
         /* worked! */
     }
@@ -244,7 +244,7 @@ char *readImageFile(const std::string &path, std::streamsize &fileSize) {
     sizeFile.close();
     return image;
 }
-
+/*
 std::string readKey(const std::string &path, const char *stKey) {
     std::string strKey="";
     std::streamsize fileSize = 0;
@@ -260,6 +260,7 @@ std::string readKey(const std::string &path, const char *stKey) {
     return strKey;
 
 }
+ */
 /*
 extern "C" JNIEXPORT  jstring   JNICALL
 Java_com_khanenoor_parsavatts_Lock_WriteLicense(JNIEnv *env, jclass jclassobj,
@@ -419,7 +420,7 @@ bool checkLicense(int style) {
     std::string path = "/data/data/" + mPackageName + "/" + LICENSE_FILE_NAME;
 
     if (style == 1) {
-        ifstream f(path.c_str());
+        std::ifstream f(path.c_str());
         bool isGoodLicFile = f.good();
         f.close();
         return isGoodLicFile;
@@ -442,7 +443,7 @@ bool checkLicense(int style) {
         //BUGGY YOU MUST VERIFY ONLY
         //EXTRACT PUBLIC KEY
         path = "/data/data/" + mPackageName + "/parsava_icon.bmp";
-        std::string strPublicKey = readKey(path, PUBLICSERVER_STEGANOGRAPHY_KEY);
+        std::string strPublicKey = "";//readKey(path, PUBLICSERVER_STEGANOGRAPHY_KEY);
         if(strPublicKey==""){
             return false;
         }
@@ -511,7 +512,7 @@ void UpdateLicenseFile(std::string licenseData) {
     }
 }
 */
-void DeleteExpiredLic(string licenseData) {
+void DeleteExpiredLic(std::string licenseData) {
     time_t nowUTC = std::time(nullptr);
     std::tm *nowLocal = std::localtime(&nowUTC);
     std::time_t nowLocalConverted = std::mktime(nowLocal);
@@ -606,7 +607,7 @@ Java_com_khanenoor_parsavatts_Lock_getLicenseKey(JNIEnv *env, jclass jclassobj) 
 }
 
 std::string readLicenseFile(std::string &path, std::string &licenseData) {
-    string licenseKey="";
+    std::string licenseKey="";
     licenseData="";
     std::string strEncryptLic;
     /*
@@ -632,7 +633,7 @@ std::string readLicenseFile(std::string &path, std::string &licenseData) {
         std::string strLicenseData = getDecodeData(mPackageName, buf.str(), 3);
         //CGlobalTools::AndroidLog("readLicenseFile strLicenseData:%s",strLicenseData.c_str());
         //////////////////////////////////////////////Read Sections
-        istringstream f(strLicenseData);
+        std::istringstream f(strLicenseData);
         getline(f, licenseKey, '#');
 
         getline(f, licenseData, '#');

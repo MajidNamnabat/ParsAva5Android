@@ -11,12 +11,12 @@ import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Xml;
 
-import com.khanenoor.parsavatts.impractical.Customer;
-import com.khanenoor.parsavatts.impractical.IParsAvaWebService;
+//import com.khanenoor.parsavatts.impractical.Customer;
+//import com.khanenoor.parsavatts.impractical.IParsAvaWebService;
 import com.khanenoor.parsavatts.util.LogUtils;
 
-import org.simpleframework.xml.convert.AnnotationStrategy;
-import org.simpleframework.xml.core.Persister;
+//import org.simpleframework.xml.convert.AnnotationStrategy;
+//import org.simpleframework.xml.core.Persister;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -34,10 +34,10 @@ import java.util.concurrent.TimeUnit;
 import java.util.zip.CRC32;
 import java.util.zip.Checksum;
 
-import okhttp3.OkHttpClient;
-import okhttp3.logging.HttpLoggingInterceptor;
-import retrofit2.Retrofit;
-import retrofit2.converter.simplexml.SimpleXmlConverterFactory;
+//import okhttp3.OkHttpClient;
+//import okhttp3.logging.HttpLoggingInterceptor;
+//import retrofit2.Retrofit;
+//import retrofit2.converter.simplexml.SimpleXmlConverterFactory;
 
 public class Lock {
     public static final boolean IS_CHECKLOCK = false;
@@ -49,7 +49,7 @@ public class Lock {
     private static final String BASE_URL = "http://parsava.ir/";
     private static final String LICENSE_FILE_NAME = "ParsAva.lic";
     private static final String TAG = Lock.class.getSimpleName();
-    private static Retrofit retrofit;
+    //private static Retrofit retrofit;
 
     /*
     FROM THIS LINK:
@@ -191,9 +191,9 @@ public class Lock {
         return "";
     }
 
-    public static native String getEncodeData(String pck_name, String data, int style);
+    //public static native String getEncodeData(String pck_name, String data, int style);
 
-    public static native String getDecodeData(String pck_name, String data, int style);
+    //public static native String getDecodeData(String pck_name, String data, int style);
 
     //public static native String WriteLicense(String pck_name,String response);
     public static native void SetHardwareAppID(String hardwareAppId, String packageName);
@@ -205,6 +205,7 @@ public class Lock {
     /**
      * Create an instance of Retrofit object
      */
+    /*
     public static IParsAvaWebService getRetrofitInstance() {
         if (retrofit == null) {
             HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
@@ -217,7 +218,7 @@ public class Lock {
         }
         return retrofit.create(IParsAvaWebService.class);
     }
-
+    */
     public static long getChecksumValue(String fname) {
         Checksum checksum = new CRC32();
         try {
@@ -269,19 +270,19 @@ public class Lock {
                 //prefs.set(Preferences.APP_UUID_ID, appEncryptLicationUniqueId);
             }
         } else {
-            appLicenseUniqueId = Lock.getDecodeData(packageName, appEncryptLicationUniqueId, Lock.STYLE_PRIVATE_LICENSE_APP);
+            //appLicenseUniqueId = Lock.getDecodeData(packageName, appEncryptLicationUniqueId, Lock.STYLE_PRIVATE_LICENSE_APP);
         }
         return appLicenseUniqueId;
     }
-
+    /*
     @SuppressLint("HardwareIds")
     public static String getHardwareCode(Context cnx) {
         String strImei = "";
         try {
             TelephonyManager telephonyManager = (TelephonyManager) cnx.getSystemService(TELEPHONY_SERVICE);
 
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q && telephonyManager != null) /* Android 10 Level 29*/ {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) /*API 26*/ {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q && telephonyManager != null)  {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)  {
                     if (telephonyManager.getPhoneCount() == 2) {
                         strImei = telephonyManager.getImei(0);
                     } else {
@@ -296,7 +297,7 @@ public class Lock {
                 }
             }
             //imei = telephonyManager.getImei();
-        /*
+
         String uid= Settings.Secure.getString(ctx.applicationContext.contentResolver, Settings.Secure.ANDROID_ID)
         if (ContextCompat.checkSelfPermission(ctx, Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED) {
             imei = when {
@@ -311,14 +312,13 @@ public class Lock {
                 }
             }
         }
-        */
         } catch (Exception ignored) {
 
         }
         return strImei;
 
     }
-
+    */
     public static boolean IsLicenseFileExist(String package_name) {
         //v56
         if(!IS_CHECKLOCK) {
@@ -377,6 +377,7 @@ public class Lock {
     فرمت ورودی خروجی xml مربوط به وب سرویس parsava را با استفاده از gsoap این فولدر می توان فهید
         E:\Speech\Android_Application\Source\dotnet\WebServiceSite\Webservice\gsoap-win32
      */
+    /*
     public static String MakeRequest_RegisterV2(Customer cus, String encryptHardwareAppId, String app_uuid, String encryptVersionCode, String architecture, String encryptFile1Sign) {
         return "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" + "<s:Envelope xmlns:s=\"http://schemas.xmlsoap.org/soap/envelope/\">\n" + "  <s:Body>\n" + "    <RegisterV2 xmlns=\"http://tempuri.org/\">\n" + "      <customerSpecification xmlns=\"http://tempuri.org/\">\n" + "           <Email xmlns=\"http://schemas.datacontract.org/2004/07/ParsAvaService\">" + cus.Email + "</Email>\n" + "           <FirstName xmlns=\"http://schemas.datacontract.org/2004/07/ParsAvaService\">" + cus.FirstName + "</FirstName>\n" + "           <LastName xmlns=\"http://schemas.datacontract.org/2004/07/ParsAvaService\">" + cus.LastName + "</LastName>\n" + "           <MobileNumber xmlns=\"http://schemas.datacontract.org/2004/07/ParsAvaService\">" + cus.MobileNumber + "</MobileNumber>\n" + "           <ProductKey xmlns=\"http://schemas.datacontract.org/2004/07/ParsAvaService\">" + cus.ProductKey + "</ProductKey>\n" + "       </customerSpecification>\n" + "      <cipherData xmlns=\"http://tempuri.org/\">" + encryptHardwareAppId + "</cipherData>\n" + "      <app_uuid xmlns=\"http://tempuri.org/\">" + app_uuid + "</app_uuid>\n" + "      <platformType xmlns=\"http://tempuri.org/\">" + Lock.PLATFORM_ANDROID + "</platformType>\n" + "      <cipherVersionId xmlns=\"http://tempuri.org/\">" + encryptVersionCode + "</cipherVersionId>\n" + "      <architecture xmlns=\"http://tempuri.org/\">" + architecture + "</architecture>\n" + "      <File1Sign xmlns=\"http://tempuri.org/\">" + encryptFile1Sign + "</File1Sign>\n" +
                 //"      <File2Sign xmlns=\"http://tempuri.org/\">" + encryptFile2Sign + "</File2Sign>\n" +
@@ -384,7 +385,7 @@ public class Lock {
                 "    </RegisterV2>\n" + "  </s:Body>\n" + "</s:Envelope>";
 
     }
-
+    */
     public static String Analyse_ResponseXml(String input, String targetTag) {
         XmlPullParser parser = Xml.newPullParser();
         String value = "";

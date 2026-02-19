@@ -1,7 +1,9 @@
 package com.khanenoor.parsavatts.impractical;
 
+/*
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
+
 @Root(name = "Customer", strict = false)
 public class Customer {
 
@@ -21,3 +23,4 @@ public class Customer {
     public String Email;
 
 }
+*/

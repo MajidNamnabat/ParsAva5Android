@@ -8,13 +8,15 @@ import com.khanenoor.parsavatts.Preferences;
 import com.khanenoor.parsavatts.impractical.Language;
 import com.khanenoor.parsavatts.impractical.SpeechSynthesisConfigure;
 import com.khanenoor.parsavatts.util.LogUtils;
-import com.microsoft.onnxruntime.OrtEnvironment;
-import com.microsoft.onnxruntime.OrtException;
-import com.microsoft.onnxruntime.OrtSession;
-import com.microsoft.onnxruntime.OrtTensor;
-import com.microsoft.onnxruntime.OnnxTensor;
-import com.microsoft.onnxruntime.OnnxValue;
+import ai.onnxruntime.OrtEnvironment;
+import ai.onnxruntime.OrtException;
+import ai.onnxruntime.OrtSession;
+import ai.onnxruntime.OnnxTensor;
+import ai.onnxruntime.OnnxValue;
 
+
+import ai.onnxruntime.OnnxTensor;
+import ai.onnxruntime.OnnxValue;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -25,6 +27,7 @@ import java.io.Serializable;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Date;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -33,21 +36,24 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 public class FaTts implements Serializable {
+    public static void onActionTtsQueueCompletedReceived() {
+    }
+
     public void changePunctionanMode(int nValue) {
-        SetOptionsNLP(nlpHand, EnumTTSParam.Opt_PuncMode.ordinal(),nValue);
+        //SetOptionsNLP(nlpHand, EnumTTSParam.Opt_PuncMode.ordinal(),nValue);
     }
 
     public void changeDigitsLanguage(int nValue) {
         LogUtils.e(TAG, "changeDigitsLanguage: " + nValue);
-        SetOptionsNLP(nlpHand, EnumTTSParam.Opt_Digits.ordinal(), nValue);
+        //SetOptionsNLP(nlpHand, EnumTTSParam.Opt_Digits.ordinal(), nValue);
     }
 
     public void changeNumberMode(int nValue) {
-        SetOptionsNLP(nlpHand, EnumTTSParam.Opt_DigitsReadMode.ordinal(),nValue);
+        //SetOptionsNLP(nlpHand, EnumTTSParam.Opt_DigitsReadMode.ordinal(),nValue);
     }
 
     public void changeEmojiMode(int nValue) {
-        SetOptionsNLP(nlpHand, EnumTTSParam.Opt_EmojiActive.ordinal(),nValue);
+        //SetOptionsNLP(nlpHand, EnumTTSParam.Opt_EmojiActive.ordinal(),nValue);
     }
 
 
@@ -82,7 +88,7 @@ public class FaTts implements Serializable {
         try {
             System.loadLibrary("SampleRate");
             // System.loadLibrary("cryptopp");
-            setNativeLoggingEnabled(LogUtils.isEnabled());
+            //setNativeLoggingEnabled(LogUtils.isEnabled());
         } catch (UnsatisfiedLinkError e) {
             // The shared library could not be loaded.
             LogUtils.e(TAG, "Could not load shared library: " + e.getMessage());
@@ -253,7 +259,7 @@ public class FaTts implements Serializable {
         }
         return null;
     }
-
+/*
     public int synth(String persianText) {
         if (mCallback == null) {
             return 0;
@@ -276,15 +282,15 @@ public class FaTts implements Serializable {
 
     private int synthWithLegacyNlp(String persianText) {
         try {
-            ParsTextNLP(getNlpHand(), persianText.getBytes("UTF-32"), true);
+            //ParsTextNLP(getNlpHand(), persianText.getBytes("UTF-32"), true);
             return 1;
         } catch (Exception e) {
             LogUtils.e(TAG, "synthWithLegacyNlp failed: " + e.getMessage());
         }
         return 0;
     }
-
-    private synchronized boolean synthWithOnnx(String persianText) {
+*/
+    synchronized boolean synthWithOnnx(String persianText) {
         if (mOnnxSession == null) {
             if (!loadPersianOnnxModel(mContext)) {
                 return false;
@@ -352,7 +358,10 @@ public class FaTts implements Serializable {
     }
 
     private long[] textToTokenIds(String text) {
-        final int[] codePoints = text.codePoints().toArray();
+        int[] codePoints = new int[0];
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+            codePoints = text.codePoints().toArray();
+        }
         if (codePoints.length == 0) {
             return new long[]{0L};
         }
@@ -368,12 +377,12 @@ public class FaTts implements Serializable {
             return null;
         }
 
-        for (OnnxValue value : result) {
-            if (!(value instanceof OrtTensor)) {
+        for (Map.Entry<String, OnnxValue> value : result) {
+            if (!(value instanceof OnnxTensor)) {
                 continue;
             }
 
-            final Object tensorValue = ((OrtTensor) value).getValue();
+            final Object tensorValue = ((OnnxTensor) value).getValue();
             final byte[] pcmWave = toPcm16Wave(tensorValue);
             if (pcmWave != null && pcmWave.length > 0) {
                 return pcmWave;
@@ -704,6 +713,12 @@ public class FaTts implements Serializable {
         while ((read = in.read(buffer)) != -1) {
             out.write(buffer, 0, read);
         }
+    }
+
+    public void StopTts() {
+    }
+
+    public void setVolume(float volume, int mVolume) {
     }
 
     public interface SynthReadyCallback {

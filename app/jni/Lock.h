@@ -2,7 +2,7 @@
 #include <jni.h>
 #include <string>
 #include <fstream>
-#include "EciesAccess.h"
+//#include "EciesAccess.h"
 bool IsAutherize();
 char* readImageFile(const std::string& path , std::streamsize & fileSize );
 std::string readKey(const std::string& path , const char *stKey);

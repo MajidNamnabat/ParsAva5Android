@@ -638,9 +638,10 @@ public class DualTtsService extends TextToSpeechService {
         //The below code was to sarfejoyi, only one instance in program level exist , but it was mistake
         app.IncEngineReferenceCount();
 
-        if(app.getNlpHand()==0L) {
-            app.setNlpHand(mEngine.mFaTts.getNlpHand());
-        }
+
+        //if(app.getNlpHand()==0L) {
+        //    app.setNlpHand(mEngine.mFaTts.getNlpHand());
+        //}
         LogUtils.w(TAG, "DualTtsService.initializeTtsEngine called ");
 
         // TextToSpeech sd;

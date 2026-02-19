@@ -129,7 +129,7 @@ public class SpeechSynthesis  {
         .registerReceiver(mPrefChangeReceiver,
                 new IntentFilter(com.khanenoor.parsavatts.custombroadcasts.CUSTOM_PREFERENCES_CHANGE_BROADCAST));
         */
-        String phoneCode = Lock.getHardwareCode(context);
+        String phoneCode = "";//Lock.getHardwareCode(context);
         String appLicenseUniqueId = Lock.Generate_Or_Get_App_UUID(packageName,context,false);
         String hardwareAppId = Lock.getCombineHardAppId(packageName,context,phoneCode,appLicenseUniqueId);
         Lock.SetHardwareAppID(hardwareAppId,packageName);
@@ -180,6 +180,7 @@ public class SpeechSynthesis  {
             return;
         }
         mFaTts.mConfiureParams.mPitch = pitch;
+        /*
         if (mFaTts.getPitchValue() != pitch) {
             mFaTts.mConfiureParams.mIsPitchChange = true;
         }
@@ -187,7 +188,7 @@ public class SpeechSynthesis  {
             mFaTts.applyPitch(pitch, mFaTts.mConfiureParams.mPitch);
             mFaTts.mConfiureParams.mIsPitchChange = false;
         }
-
+        */
     }
     public void setVolume(float volume){
         if(mFaTts.mConfiureParams.mIsVolumeChange){
@@ -378,7 +379,7 @@ public class SpeechSynthesis  {
             return false;
         }
 
-        mFaTts.synth(text);
+        mFaTts.synthWithOnnx(text);
         return forceEnglishFlush;
     }
 
@@ -504,7 +505,7 @@ public class SpeechSynthesis  {
         final Character.UnicodeBlock block = Character.UnicodeBlock.of(codePoint);
         return block == Character.UnicodeBlock.ARABIC
                 || block == Character.UnicodeBlock.ARABIC_SUPPLEMENT
-                || block == Character.UnicodeBlock.ARABIC_EXTENDED_A
+                /*|| block == Character.UnicodeBlock.ARABIC_EXTENDED_A*/
                 || block == Character.UnicodeBlock.ARABIC_PRESENTATION_FORMS_A
                 || block == Character.UnicodeBlock.ARABIC_PRESENTATION_FORMS_B;
     }

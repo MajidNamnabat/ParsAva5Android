@@ -69,7 +69,7 @@ public class ExtendedApplication extends MultiDexApplication {
     //private long mNlpHand = 0L;
     //private int  mSpeechSyn_ReferenceCount = 0;
     //must be common, solution is in pause activity both, save and close
-    public UserDictionaryFile mUserDictionary = null;
+    //public UserDictionaryFile mUserDictionary = null;
     private static boolean preferDeviceProtectedStorage;
     @Override
     protected void attachBaseContext(Context base) {
@@ -122,10 +122,14 @@ public class ExtendedApplication extends MultiDexApplication {
         }
         return userManager.isUserUnlocked();
     }
+
     public void initUserDictionary(){
+        /*
         if(isNull(mUserDictionary)){
             mUserDictionary = new UserDictionaryFile(this);
         }
+
+         */
     }
     public void setNlpHand(long n){
         //mNlpHand = n;
@@ -154,7 +158,7 @@ public class ExtendedApplication extends MultiDexApplication {
             LogUtils.w(TAG, "reloadUserDictionary skipped: nlpHand is 0");
             return;
         }
-        FaTts.ReloadUserDictionaryNLP(nlpHand);
+        //FaTts.ReloadUserDictionaryNLP(nlpHand);
     }
     public void IncEngineReferenceCount(){
         //mSpeechSyn_ReferenceCount++;
@@ -254,7 +258,7 @@ public class ExtendedApplication extends MultiDexApplication {
         //Check , when become Idle after that GetUserDictionaryPath cause sigsegv , I want this function is called or not,
         final Preferences prefs = new Preferences(ExtendedApplication.storageContext);
         prefs.set(Preferences.NLP_HAND, "0");
-        mUserDictionary = null;
+        //mUserDictionary = null;
 
         boolean isDebuggable = false;
         //mNlpHand = 0L;

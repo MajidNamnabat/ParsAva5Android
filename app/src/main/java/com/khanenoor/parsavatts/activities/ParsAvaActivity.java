@@ -39,7 +39,7 @@ import com.khanenoor.parsavatts.R;
 import com.khanenoor.parsavatts.SupportActivity;
 import com.khanenoor.parsavatts.engine.CheckVoiceData;
 import com.khanenoor.parsavatts.engine.DownloadVoiceData;
-import com.khanenoor.parsavatts.impractical.IParsAvaWebService;
+//import com.khanenoor.parsavatts.impractical.IParsAvaWebService;
 import com.khanenoor.parsavatts.util.LogUtils;
 
 import java.io.IOException;
@@ -53,12 +53,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import okhttp3.MediaType;
-import okhttp3.RequestBody;
-import okhttp3.ResponseBody;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 
 public class ParsAvaActivity extends Activity {
@@ -537,6 +531,7 @@ public class ParsAvaActivity extends Activity {
             //mFirstCheck variable must unchecked it is ttslib , This is most in order that mFirstCheck
             // move to lock.cpp
             ////////////////////////////////////////Read Version of Manifest and Encrypt it
+            /*
             Preferences prefs = new Preferences(ExtendedApplication.getStorageContext());
             IParsAvaWebService parsWebService = Lock.getRetrofitInstance();
 
@@ -617,7 +612,7 @@ public class ParsAvaActivity extends Activity {
                 }
             });
 
-
+            */
             LogUtils.w(TAG, "ParsAvaActivity.mInitListener SUCECSS");
         } else if (Lock.IS_CHECKLOCK && !hasLicense) {
             Intent myIntent = new Intent(ParsAvaActivity.this, LicenseActivity.class);
@@ -708,9 +703,9 @@ public class ParsAvaActivity extends Activity {
         findViewById(R.id.number_command).setOnClickListener(mOnClickListener);
         findViewById(R.id.number_language_command).setOnClickListener(mOnClickListener);
         findViewById(R.id.emoji_command).setOnClickListener(mOnClickListener);
-        findViewById(R.id.add_word).setOnClickListener(mOnClickListener);
-        findViewById(R.id.word_list).setOnClickListener(mOnClickListener);
-        findViewById(R.id.user_dictionary_manage).setOnClickListener(mOnClickListener);
+        //findViewById(R.id.add_word).setOnClickListener(mOnClickListener);
+        //findViewById(R.id.word_list).setOnClickListener(mOnClickListener);
+        //findViewById(R.id.user_dictionary_manage).setOnClickListener(mOnClickListener);
         findViewById(R.id.save_to_file).setOnClickListener(mOnClickListener);
         findViewById(R.id.tts_sample).setOnClickListener(mOnClickListener);
         findViewById(R.id.register_command).setOnClickListener(mOnClickListener);

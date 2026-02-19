@@ -1,5 +1,5 @@
 package com.khanenoor.parsavatts.impractical;
-
+/*
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Namespace;
 import org.simpleframework.xml.Path;
@@ -33,3 +33,4 @@ public class GetLicenseKeyElement {
     };
 
 }
+*/

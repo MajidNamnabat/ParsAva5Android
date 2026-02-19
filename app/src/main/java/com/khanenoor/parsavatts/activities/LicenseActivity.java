@@ -24,18 +24,13 @@ import com.khanenoor.parsavatts.ExtendedApplication;
 import com.khanenoor.parsavatts.Lock;
 import com.khanenoor.parsavatts.Preferences;
 import com.khanenoor.parsavatts.R;
-import com.khanenoor.parsavatts.impractical.Customer;
-import com.khanenoor.parsavatts.impractical.IParsAvaWebService;
+//import com.khanenoor.parsavatts.impractical.Customer;
+//import com.khanenoor.parsavatts.impractical.IParsAvaWebService;
 import com.khanenoor.parsavatts.util.LogUtils;
 
 import java.io.IOException;
 
-import okhttp3.MediaType;
-import okhttp3.RequestBody;
-import okhttp3.ResponseBody;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
+
 
 public class LicenseActivity extends Activity {
     private static final String TAG = LicenseActivity.class.getSimpleName();
@@ -46,8 +41,9 @@ public class LicenseActivity extends Activity {
     private EditText mEdtSoftwareKey = null;
     private TextView mLicenseErrors = null;
     private Preferences mPrefs = null;
-    private IParsAvaWebService mParsWebService = null;
+  //  private IParsAvaWebService mParsWebService = null;
     private boolean mIsRegisterClicked = false;
+    /*
     @SuppressLint("PackageManagerGetSignatures")
     private final View.OnClickListener mOnClickListener = v -> {
         mLicenseErrors.setText("");
@@ -59,14 +55,14 @@ public class LicenseActivity extends Activity {
             GetLicense();
         }
     };
-
+    */
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.layout_license);
-        findViewById(R.id.license_register).setOnClickListener(mOnClickListener);
-        findViewById(R.id.license_receivelicensekey).setOnClickListener(mOnClickListener);
+        //findViewById(R.id.license_register).setOnClickListener(mOnClickListener);
+        //findViewById(R.id.license_receivelicensekey).setOnClickListener(mOnClickListener);
         mEdtFirstName = (EditText) findViewById(R.id.license_first_name);
         mEdtLastName = (EditText) findViewById(R.id.license_last_name);
         mEdtMobileNumber = (EditText) findViewById(R.id.license_mobile);
@@ -74,7 +70,7 @@ public class LicenseActivity extends Activity {
         mEdtSoftwareKey = (EditText) findViewById(R.id.license_softwarekey);
         mLicenseErrors = (TextView) findViewById(R.id.license_errors);
         mPrefs = new Preferences(ExtendedApplication.getStorageContext());
-        mParsWebService = Lock.getRetrofitInstance();
+    //    mParsWebService = Lock.getRetrofitInstance();
     }
 
     @SuppressLint("HardwareIds")
@@ -97,7 +93,7 @@ public class LicenseActivity extends Activity {
                     ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_PHONE_STATE}, Lock.REQUEST_CODE);
                 }
             }
-            return Lock.getHardwareCode(getApplicationContext());
+            return "";//Lock.getHardwareCode(getApplicationContext());
         } catch (Exception ex) {
             LogUtils.w(TAG, "getPhoneCode generate exception ");
         }
@@ -129,6 +125,7 @@ public class LicenseActivity extends Activity {
         return imei;
     }
      */
+    /*
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -155,7 +152,8 @@ public class LicenseActivity extends Activity {
             }
         }
     }
-
+    */
+    /*
     private Customer GetCustomerIfValid() {
         Customer cus = new Customer();
         String errTextDisplay;
@@ -191,6 +189,8 @@ public class LicenseActivity extends Activity {
         }
         return cus;
     }
+    */
+    /*
     private void Register(){
         final String packageName = getPackageName();
         BeginProcess();
@@ -200,7 +200,7 @@ public class LicenseActivity extends Activity {
             return;
         }
         String phoneCode = getPhoneCode();
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q ) /* Android 10 Level 29*/ {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q )  {
             // in the below line, we are checking for permissions
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED) {
                 RegisterNextGrantPermission(packageName,phoneCode);
@@ -210,14 +210,9 @@ public class LicenseActivity extends Activity {
         }
         FinishProcess();
     }
+    */
+    /*
     private void RegisterNextGrantPermission(String packageName,String phoneCode){
-        /*
-        mEdtFirstName.setText("Majid");
-        mEdtLastName.setText("Namnabat");
-        mEdtMobileNumber.setText("09121438315");
-        mEdtEmail.setText("maj.nam@gmail.com");
-        mEdtSoftwareKey.setText("5336949178");
-        */
         Customer cus = GetCustomerIfValid();
         if (isNull(cus)) {
             FinishProcess();
@@ -241,35 +236,7 @@ public class LicenseActivity extends Activity {
         ///////////////////////////////////////Read CRC of libTTsLib.so
         //Problem : the Address of these files are different in different android versions.
         // In Real checking sign of apk is enough, only me can produce this sign
-        /*
-        String encryptFile1Sign = "";
-        String path = "/data/data/" + packageName + "/lib/libTtslib.so";
-        LogUtils.w(TAG, "onClickListener path:" + path);
-        File f1 = new File(path);
-        // do something
-        if (f1.exists() && !f1.isDirectory()) {
-            long checkSumValue = Lock.getChecksumValue(path);
-            encryptFile1Sign = Lock.getEncodeData(packageName, String.valueOf(checkSumValue), Lock.STYLE_PUBLIC_LICENSE_SERVER_ONLY);
-        } else {
-            LogUtils.w(TAG, "**** onClickListener libTtslib.so not found to check sign");
-        }
-
-         */
         ///////////////////////////////////////Read CRC of libcryptopp.so
-        /*
-        String encryptFile2Sign = "";
-        path = "/data/data/" + packageName + "/lib/libcryptopp.so";
-        LogUtils.w(TAG, "onClickListener path:" + path);
-        File f2 = new File(path);
-        // do something
-        if (f2.exists() && !f2.isDirectory()) {
-            long checkSumValue = Lock.getChecksumValue(path);
-            encryptFile2Sign = Lock.getEncodeData(packageName, String.valueOf(checkSumValue), Lock.STYLE_PUBLIC_LICENSE_SERVER_ONLY);
-        } else {
-            LogUtils.w(TAG, "**** onClickListener libcryptopp.so not found to check sign");
-        }
-
-         */
         ///////////////////////////////////// Read Sign of APK Code
         Signature[] sigs = new Signature[0];
         String encryptFile1Sign = "";
@@ -349,6 +316,8 @@ public class LicenseActivity extends Activity {
             }
         });
     }
+    */
+    /*
     private void GetLicense(){
         final String packageName = getPackageName();
         BeginProcess();
@@ -359,7 +328,7 @@ public class LicenseActivity extends Activity {
         }
 
         String phoneCode = getPhoneCode();
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q ) /* Android 10 Level 29*/ {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q )  {
             // in the below line, we are checking for permissions
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED) {
                 GetLicenseNextGrantPermission(packageName,phoneCode);
@@ -369,6 +338,8 @@ public class LicenseActivity extends Activity {
         }
         FinishProcess();
     }
+    */
+    /*
     private void GetLicenseNextGrantPermission(String packageName,String phoneCode){
 
         String appLicenseUniqueId = Lock.Generate_Or_Get_App_UUID(packageName, this, false);
@@ -380,15 +351,6 @@ public class LicenseActivity extends Activity {
         String productKey = mEdtSoftwareKey.getText().toString().trim();
         if (TextUtils.isEmpty(productKey)) {
             productKey = mPrefs.get(APP_PRODUCT_KEY, "");
-                /*if (TextUtils.isEmpty(productKey)) {
-                    //MY Product Id
-                    //productKey = "5336949178";
-                    if (TextUtils.isEmpty(productKey)) {
-                        errTextDisplay = getResources().getString(R.string.license_err_softwarekey_empty);
-                        mLicenseErrors.setText(errTextDisplay);
-                    }
-                }
-                */
         }
         ////////////////////////////////////////Read Version of Manifest and Encrypt it
         String encryptVersionCode = "";
@@ -475,6 +437,7 @@ public class LicenseActivity extends Activity {
         });
 
     }
+    */
     private void BeginProcess(){
         findViewById(R.id.license_register).setEnabled(false);
         findViewById(R.id.license_receivelicensekey).setEnabled(false);
