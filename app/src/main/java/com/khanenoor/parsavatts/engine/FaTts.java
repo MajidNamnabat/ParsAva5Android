@@ -14,10 +14,6 @@ import ai.onnxruntime.OrtSession;
 import ai.onnxruntime.OnnxTensor;
 import ai.onnxruntime.OnnxValue;
 
-
-import ai.onnxruntime.OnnxTensor;
-import ai.onnxruntime.OnnxValue;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -72,6 +68,7 @@ public class FaTts implements Serializable {
     private transient OrtSession mOnnxSession;
     private String mOnnxModelPath;
     private String mOnnxPrimaryInputName;
+    private String mOnnxInputLengthsInputName;
     private String mOnnxScalesInputName;
     private String mOnnxLengthScaleInputName;
     private static final int PCM_16_BIT_BYTES_PER_SAMPLE = 2;
@@ -188,6 +185,7 @@ public class FaTts implements Serializable {
             mOnnxSession = mOnnxEnvironment.createSession(modelPath, options);
             mOnnxModelPath = modelPath;
             mOnnxPrimaryInputName = resolvePrimaryOnnxInputName(mOnnxSession);
+            mOnnxInputLengthsInputName = resolveOptionalOnnxInputName(mOnnxSession, "input_lengths");
             mOnnxScalesInputName = resolveOptionalOnnxInputName(mOnnxSession, "scales");
             mOnnxLengthScaleInputName = resolveOptionalOnnxInputName(mOnnxSession, "length_scale");
             if (mOnnxPrimaryInputName == null || mOnnxPrimaryInputName.isEmpty()) {
@@ -230,6 +228,7 @@ public class FaTts implements Serializable {
         }
         mOnnxModelPath = null;
         mOnnxPrimaryInputName = null;
+        mOnnxInputLengthsInputName = null;
         mOnnxScalesInputName = null;
         mOnnxLengthScaleInputName = null;
     }
@@ -312,6 +311,27 @@ public class FaTts implements Serializable {
             final java.util.Map<String, OnnxTensor> inputs = new java.util.HashMap<>(3);
             try (OnnxTensor inputTensor = OnnxTensor.createTensor(mOnnxEnvironment, java.nio.LongBuffer.wrap(tokenIds), new long[]{1, tokenIds.length})) {
                 inputs.put(inputName, inputTensor);
+                if (mOnnxInputLengthsInputName != null && !mOnnxInputLengthsInputName.isEmpty()) {
+                    long[] inputLengths = new long[]{tokenIds.length};
+                    try (OnnxTensor inputLengthsTensor = OnnxTensor.createTensor(mOnnxEnvironment, java.nio.LongBuffer.wrap(inputLengths), new long[]{1})) {
+                        inputs.put(mOnnxInputLengthsInputName, inputLengthsTensor);
+                        return runSynthesisSession(inputs);
+                    }
+                }
+
+                return runSynthesisSession(inputs);
+            }
+        } catch (Exception ex) {
+            LogUtils.w(TAG, "synthWithOnnx failed", ex);
+            return false;
+        }
+    }
+
+    private boolean runSynthesisSession(java.util.Map<String, OnnxTensor> inputs) throws OrtException {
+        if (inputs == null || inputs.isEmpty()) {
+            return false;
+        }
+
                 if (mOnnxScalesInputName != null && !mOnnxScalesInputName.isEmpty()) {
                     float[] scales = new float[]{ONNX_NOISE_SCALE, mOnnxLengthScale, ONNX_NOISE_W};
                     try (OnnxTensor scalesTensor = OnnxTensor.createTensor(mOnnxEnvironment, java.nio.FloatBuffer.wrap(scales), new long[]{3})) {
@@ -350,11 +370,6 @@ public class FaTts implements Serializable {
                 emitWaveToQueue(pcm16Wave);
                 return true;
                 }
-            }
-        } catch (Exception ex) {
-            LogUtils.w(TAG, "synthWithOnnx failed", ex);
-            return false;
-        }
     }
 
     private long[] textToTokenIds(String text) {
