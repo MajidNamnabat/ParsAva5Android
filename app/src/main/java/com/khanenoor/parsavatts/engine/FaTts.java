@@ -373,17 +373,198 @@ public class FaTts implements Serializable {
                 }
     }
 
+    private static final long PHONEME_UNKNOWN_TOKEN_ID = 0L;
+
+    private long mapPhonemeCodePointToTokenId(int codePoint) {
+        switch (codePoint) {
+            case 0x20: return 3L; //  
+            case 0x21: return 4L; // !
+            case 0x22: return 150L; // "
+            case 0x23: return 149L; // #
+            case 0x24: return 2L; // $
+            case 0x27: return 5L; // '
+            case 0x28: return 6L; // (
+            case 0x29: return 7L; // )
+            case 0x2C: return 8L; // ,
+            case 0x2D: return 9L; // -
+            case 0x2E: return 10L; // .
+            case 0x30: return 130L; // 0
+            case 0x31: return 131L; // 1
+            case 0x32: return 132L; // 2
+            case 0x33: return 133L; // 3
+            case 0x34: return 134L; // 4
+            case 0x35: return 135L; // 5
+            case 0x36: return 136L; // 6
+            case 0x37: return 137L; // 7
+            case 0x38: return 138L; // 8
+            case 0x39: return 139L; // 9
+            case 0x3A: return 11L; // :
+            case 0x3B: return 12L; // ;
+            case 0x3F: return 13L; // ?
+            case 0x58: return 156L; // X
+            case 0x5E: return 1L; // ^
+            case 0x5F: return 0L; // _
+            case 0x61: return 14L; // a
+            case 0x62: return 15L; // b
+            case 0x63: return 16L; // c
+            case 0x64: return 17L; // d
+            case 0x65: return 18L; // e
+            case 0x66: return 19L; // f
+            case 0x67: return 154L; // g
+            case 0x68: return 20L; // h
+            case 0x69: return 21L; // i
+            case 0x6A: return 22L; // j
+            case 0x6B: return 23L; // k
+            case 0x6C: return 24L; // l
+            case 0x6D: return 25L; // m
+            case 0x6E: return 26L; // n
+            case 0x6F: return 27L; // o
+            case 0x70: return 28L; // p
+            case 0x71: return 29L; // q
+            case 0x72: return 30L; // r
+            case 0x73: return 31L; // s
+            case 0x74: return 32L; // t
+            case 0x75: return 33L; // u
+            case 0x76: return 34L; // v
+            case 0x77: return 35L; // w
+            case 0x78: return 36L; // x
+            case 0x79: return 37L; // y
+            case 0x7A: return 38L; // z
+            case 0xE6: return 39L; // æ
+            case 0xE7: return 40L; // ç
+            case 0xF0: return 41L; // ð
+            case 0xF8: return 42L; // ø
+            case 0x127: return 43L; // ħ
+            case 0x14B: return 44L; // ŋ
+            case 0x153: return 45L; // œ
+            case 0x1C0: return 46L; // ǀ
+            case 0x1C1: return 47L; // ǁ
+            case 0x1C2: return 48L; // ǂ
+            case 0x1C3: return 49L; // ǃ
+            case 0x250: return 50L; // ɐ
+            case 0x251: return 51L; // ɑ
+            case 0x252: return 52L; // ɒ
+            case 0x253: return 53L; // ɓ
+            case 0x254: return 54L; // ɔ
+            case 0x255: return 55L; // ɕ
+            case 0x256: return 56L; // ɖ
+            case 0x257: return 57L; // ɗ
+            case 0x258: return 58L; // ɘ
+            case 0x259: return 59L; // ə
+            case 0x25A: return 60L; // ɚ
+            case 0x25B: return 61L; // ɛ
+            case 0x25C: return 62L; // ɜ
+            case 0x25E: return 63L; // ɞ
+            case 0x25F: return 64L; // ɟ
+            case 0x260: return 65L; // ɠ
+            case 0x261: return 66L; // ɡ
+            case 0x262: return 67L; // ɢ
+            case 0x263: return 68L; // ɣ
+            case 0x264: return 69L; // ɤ
+            case 0x265: return 70L; // ɥ
+            case 0x266: return 71L; // ɦ
+            case 0x267: return 72L; // ɧ
+            case 0x268: return 73L; // ɨ
+            case 0x26A: return 74L; // ɪ
+            case 0x26B: return 75L; // ɫ
+            case 0x26C: return 76L; // ɬ
+            case 0x26D: return 77L; // ɭ
+            case 0x26E: return 78L; // ɮ
+            case 0x26F: return 79L; // ɯ
+            case 0x270: return 80L; // ɰ
+            case 0x271: return 81L; // ɱ
+            case 0x272: return 82L; // ɲ
+            case 0x273: return 83L; // ɳ
+            case 0x274: return 84L; // ɴ
+            case 0x275: return 85L; // ɵ
+            case 0x276: return 86L; // ɶ
+            case 0x278: return 87L; // ɸ
+            case 0x279: return 88L; // ɹ
+            case 0x27A: return 89L; // ɺ
+            case 0x27B: return 90L; // ɻ
+            case 0x27D: return 91L; // ɽ
+            case 0x27E: return 92L; // ɾ
+            case 0x280: return 93L; // ʀ
+            case 0x281: return 94L; // ʁ
+            case 0x282: return 95L; // ʂ
+            case 0x283: return 96L; // ʃ
+            case 0x284: return 97L; // ʄ
+            case 0x288: return 98L; // ʈ
+            case 0x289: return 99L; // ʉ
+            case 0x28A: return 100L; // ʊ
+            case 0x28B: return 101L; // ʋ
+            case 0x28C: return 102L; // ʌ
+            case 0x28D: return 103L; // ʍ
+            case 0x28E: return 104L; // ʎ
+            case 0x28F: return 105L; // ʏ
+            case 0x290: return 106L; // ʐ
+            case 0x291: return 107L; // ʑ
+            case 0x292: return 108L; // ʒ
+            case 0x294: return 109L; // ʔ
+            case 0x295: return 110L; // ʕ
+            case 0x298: return 111L; // ʘ
+            case 0x299: return 112L; // ʙ
+            case 0x29B: return 113L; // ʛ
+            case 0x29C: return 114L; // ʜ
+            case 0x29D: return 115L; // ʝ
+            case 0x29F: return 116L; // ʟ
+            case 0x2A1: return 117L; // ʡ
+            case 0x2A2: return 118L; // ʢ
+            case 0x2A6: return 155L; // ʦ
+            case 0x2B0: return 145L; // ʰ
+            case 0x2B2: return 119L; // ʲ
+            case 0x2C8: return 120L; // ˈ
+            case 0x2CC: return 121L; // ˌ
+            case 0x2D0: return 122L; // ː
+            case 0x2D1: return 123L; // ˑ
+            case 0x2DE: return 124L; // ˞
+            case 0x2E4: return 146L; // ˤ
+            case 0x303: return 141L; // ̃
+            case 0x327: return 140L; // ̧
+            case 0x329: return 144L; // ̩
+            case 0x32A: return 142L; // ̪
+            case 0x32F: return 143L; // ̯
+            case 0x33A: return 152L; // ̺
+            case 0x33B: return 153L; // ̻
+            case 0x3B2: return 125L; // β
+            case 0x3B5: return 147L; // ε
+            case 0x3B8: return 126L; // θ
+            case 0x3C7: return 127L; // χ
+            case 0x1D7B: return 128L; // ᵻ
+            case 0x2191: return 151L; // ↑
+            case 0x2193: return 148L; // ↓
+            case 0x2C71: return 129L; // ⱱ
+            default:
+                return PHONEME_UNKNOWN_TOKEN_ID;
+        }
+    }
+
     private long[] textToTokenIds(String text) {
-        int[] codePoints = new int[0];
+        if (text == null || text.isEmpty()) {
+            return new long[]{PHONEME_UNKNOWN_TOKEN_ID};
+        }
+
+        final int[] codePoints;
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
             codePoints = text.codePoints().toArray();
+        } else {
+            final int count = text.codePointCount(0, text.length());
+            codePoints = new int[count];
+            int offset = 0;
+            for (int i = 0; i < count; i++) {
+                final int cp = text.codePointAt(offset);
+                codePoints[i] = cp;
+                offset += Character.charCount(cp);
+            }
         }
+
         if (codePoints.length == 0) {
-            return new long[]{0L};
+            return new long[]{PHONEME_UNKNOWN_TOKEN_ID};
         }
+
         final long[] tokens = new long[codePoints.length];
         for (int i = 0; i < codePoints.length; i++) {
-            tokens[i] = Math.max(0, codePoints[i]);
+            tokens[i] = mapPhonemeCodePointToTokenId(codePoints[i]);
         }
         return tokens;
     }
