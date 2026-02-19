@@ -24,6 +24,17 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class EnTts {
     private static final String TAG = EnTts.class.getSimpleName();
     private static final String ENGLISH_UTTERANCE_PREFIX = "ParsAva_English_Engine_";
+
+    static {
+        try {
+            System.loadLibrary("SampleRate");
+        } catch (UnsatisfiedLinkError e) {
+            LogUtils.e(TAG, "Could not load shared library for EnTts: " + e.getMessage());
+        } catch (SecurityException e) {
+            LogUtils.e(TAG, "No permission to load shared library for EnTts: " + e.getMessage());
+        }
+    }
+
     //can be placed in R.strings
     public TextToSpeech mEnTts = null;
     public ParsAvaUtteranceProgressListener mUtteranceProgressListener= null;
