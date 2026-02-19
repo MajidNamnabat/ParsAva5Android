@@ -27,6 +27,7 @@ public class EnTts {
 
     static {
         try {
+            System.loadLibrary("Ttslib");
             System.loadLibrary("SampleRate");
         } catch (UnsatisfiedLinkError e) {
             LogUtils.e(TAG, "Could not load shared library for EnTts: " + e.getMessage());
