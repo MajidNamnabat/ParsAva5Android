@@ -44,7 +44,7 @@ public class EnTts {
 
        // package_name = pck_name;
         mContext = context;
-        setThisInNative();
+        //setThisInNative();
         mConfiureParams = new SpeechSynthesisConfigure(context, Language.LANGUAGE_ENGLISH);
         mTtsInitialized=false;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -427,7 +427,6 @@ public class EnTts {
         unloadResample();
         mResamplerInitialized = false;
     }
-    public native void setThisInNative();
     public native byte[] resample(byte[] dataIn,int inSampleFreq , int outSampleFreq , int intChannels, int outChannels,float volumeRatio);
     public native ByteBuffer resampleNative(ByteBuffer dataIn,int inSampleFreq , int outSampleFreq , int intChannels, int outChannels,float volumeRatio);
     public native void unloadResample();
@@ -435,19 +434,20 @@ public class EnTts {
                                     int outSampleFreq,
                                     int intChannels,
                                     int outChannels);
-    public native void firstAudioPacketReceived();
-    public static native void reportAudioBufferLevel(int bufferedCount, int capacity);
+    //public native void firstAudioPacketReceived();
+    //public static native void reportAudioBufferLevel(int bufferedCount, int capacity);
 
     @SuppressWarnings("unused")
     private int nativeSpeakEngCallback(String text) {
         //LogUtils.w(TAG, " nativeSpeakEngCallback text:" + text );
-        setBusy(true);
+
+        //setBusy(true);
         Speak(text);
         return 0;
 
     }
-    public native void setBusy(boolean isBusy);
-    public native boolean getBusy();
+    //public native void setBusy(boolean isBusy);
+    //public native boolean getBusy();
 
     private String sanitizeEngineId(String enginePackageName) {
         if (mContext != null && TextUtils.equals(enginePackageName, mContext.getPackageName())) {

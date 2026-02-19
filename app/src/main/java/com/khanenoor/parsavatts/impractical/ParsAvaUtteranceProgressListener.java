@@ -209,7 +209,7 @@ public class ParsAvaUtteranceProgressListener extends UtteranceProgressListener 
 
         if (mSpeechSynEngine != null) {
             mSpeechSynEngine.mEnTts.releaseResampler();
-            mSpeechSynEngine.mEnTts.setBusy(false);
+            //mSpeechSynEngine.mEnTts.setBusy(false);
         }
         mMessagePrintCounter = 0;
         resetUtteranceTracking("finishSynthesis");
@@ -304,7 +304,7 @@ public class ParsAvaUtteranceProgressListener extends UtteranceProgressListener 
         try {
             if (getSpeakProgressState() == enmSpeakProgressStates.onBeginSynthesisCalled) {
                 transitionToState(enmSpeakProgressStates.onFirstAudioPacketReceived, "first audio packet");
-                mSpeechSynEngine.mEnTts.firstAudioPacketReceived();
+                //mSpeechSynEngine.mEnTts.firstAudioPacketReceived();
             }
             byte[] processedAudio = maybeResample(audioData);
             if (processedAudio == null || processedAudio.length == 0) {

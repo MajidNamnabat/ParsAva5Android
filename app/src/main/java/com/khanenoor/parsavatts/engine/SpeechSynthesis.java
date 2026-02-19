@@ -129,10 +129,10 @@ public class SpeechSynthesis  {
         .registerReceiver(mPrefChangeReceiver,
                 new IntentFilter(com.khanenoor.parsavatts.custombroadcasts.CUSTOM_PREFERENCES_CHANGE_BROADCAST));
         */
-        String phoneCode = "";//Lock.getHardwareCode(context);
-        String appLicenseUniqueId = Lock.Generate_Or_Get_App_UUID(packageName,context,false);
-        String hardwareAppId = Lock.getCombineHardAppId(packageName,context,phoneCode,appLicenseUniqueId);
-        Lock.SetHardwareAppID(hardwareAppId,packageName);
+        //String phoneCode = "";//Lock.getHardwareCode(context);
+        //String appLicenseUniqueId = Lock.Generate_Or_Get_App_UUID(packageName,context,false);
+        //String hardwareAppId = Lock.getCombineHardAppId(packageName,context,phoneCode,appLicenseUniqueId);
+        //Lock.SetHardwareAppID(hardwareAppId,packageName);
     }
     public int getSampleRate() {
         if(mFaTts.getVoice()==0) {
