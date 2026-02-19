@@ -83,6 +83,7 @@ public class FaTts implements Serializable {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> INSTALL_CHECK_EXECUTOR.shutdownNow()));
         // Try to load the shared library.
         try {
+            System.loadLibrary("Ttslib");
             System.loadLibrary("SampleRate");
             // System.loadLibrary("cryptopp");
             //setNativeLoggingEnabled(LogUtils.isEnabled());
