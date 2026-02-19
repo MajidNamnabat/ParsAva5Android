@@ -574,12 +574,13 @@ public class FaTts implements Serializable {
             return null;
         }
 
-        for (Map.Entry<String, OnnxValue> value : result) {
-            if (!(value instanceof OnnxTensor)) {
+        for (Map.Entry<String, OnnxValue> output : result) {
+            final OnnxValue onnxValue = output.getValue();
+            if (!(onnxValue instanceof OnnxTensor)) {
                 continue;
             }
 
-            final Object tensorValue = ((OnnxTensor) value).getValue();
+            final Object tensorValue = ((OnnxTensor) onnxValue).getValue();
             final byte[] pcmWave = toPcm16Wave(tensorValue);
             if (pcmWave != null && pcmWave.length > 0) {
                 return pcmWave;
