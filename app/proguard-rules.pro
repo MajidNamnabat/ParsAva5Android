@@ -13,6 +13,9 @@
 -flattenpackagehierarchy 'ob'
 -repackageclasses 'obs'
 -allowaccessmodification
+-useuniqueclassmembernames
+-adaptclassstrings
+-renamesourcefileattribute ""
 
 -dontwarn org.xmlpull.v1.**
 -dontwarn org.kxml2.io.**
@@ -38,7 +41,7 @@
 -keep class org.xmlpull.** { *; }
 -keepclassmembers class org.xmlpull.** { *; }
 
--keep public class com.khanenoor.parsavatts.ttsService.DualTtsService
+-keep public class com.khanenoor.parsavatts.ttsService.DualTtsService { *; }
 # extends android.speech.tts.TextToSpeechService
 #-keep public class * extends com.khanenoor.parsavatts.engine.FaTts
 #-keep public class * extends com.khanenoor.parsavatts.engine.EnTts
@@ -121,4 +124,3 @@
 -keep class **SafeAtomicHelper** { *; }
 -keep class **AbstractFuture** { *; }
 -keep class java.util.concurrent.atomic.AtomicReferenceFieldUpdater { *; }
-
