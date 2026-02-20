@@ -871,7 +871,7 @@ public class FaTts implements Serializable {
         float lengthScale;
         if (averageRate >= 50.0f) {
             lengthScale = 1.0f - ((averageRate - 50.0f) / 25.0f);
-            if (lengthScale<1){
+            if (lengthScale<0f){
                 lengthScale=0.05f;
             }
         } else {
